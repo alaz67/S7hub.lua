@@ -856,7 +856,7 @@ end
 
 -- MOBILE BUTTONS: Links: AUTO L, PLAY L, DROP, LOCK | Rechts: AUTO R, PLAY R, TP DOWN, CARRY SPD
 do
-    local gap=68; local startY=-170; local col1=-120; local col2=-56
+    local gap=62; local startY=-155; local col1=-120; local col2=-55
     local function makeMob(label,xOffset,yOffset,toggleName,onAct) local btn=Instance.new("TextButton",ScreenGui); btn.Size=UDim2.new(0,58,0,58); btn.Position=UDim2.new(1,xOffset,0.5,yOffset); btn.BackgroundColor3=MOB_OFF; btn.BackgroundTransparency=0.1; btn.Text=label; btn.TextColor3=WHITE; btn.Font=Enum.Font.GothamBold; btn.TextSize=9; btn.TextWrapped=true; btn.BorderSizePixel=0; btn.ZIndex=20;
     Instance.new("UICorner",btn).CornerRadius=UDim.new(0,10); local s=Instance.new("UIStroke",btn); s.Color=ACCENT; s.Thickness=1.5; s.Transparency=0.3; table.insert(mobileButtons,btn); if toggleName then mobBtnRefs[toggleName]=btn end; btn.MouseButton1Click:Connect(onAct); return btn end
 
@@ -866,11 +866,55 @@ do
     makeMob("DROP",col1,startY+gap*2,nil,function() task.spawn(doDrop) end)
     makeMob("LOCK",col1,startY+gap*3,"Anti Ragdoll",function() local ns=not(toggleStates["Anti Ragdoll"] and toggleStates["Anti Ragdoll"].state); antiRagdollEnabled=ns; if ns then startAntiRagdoll() else stopAntiRagdoll() end; updateToggle("Anti Ragdoll",ns) end)
 
-    -- Rechts
-    makeMob("AUTO\nR",col2,startY+gap*0,"Auto Play Right",function() local ns=not aprOn; if ns then if batAimbotEnabled then disableHitCircle(); updateToggle("Bat Aimbot + Hit Circle",false) end; if aplOn then stopAutoPlayLeft(); updateToggle("Auto Play Left",false) end; aprOn=true; startAutoPlayRight() else stopAutoPlayRight() end; updateToggle("Auto Play Right",ns) end)
-    makeMob("PLAY\nR",col2,startY+gap*1,nil,function() if not aprOn then aprOn=true; startAutoPlayRight(); updateToggle("Auto Play Right",true) end end)
-    makeMob("TP\nDOWN",col2,startY+gap*2,nil,function() task.spawn(doTPDown) end)
-    makeMob("CARRY\nSPD",col2,startY+gap*3,"Slow Down",function() local ns=not(toggleStates["Slow Down"] and toggleStates["Slow Down"].state); slowDownEnabled=ns; updateToggle("Slow Down",ns) end)
+    -- Rechts: alle 4 in einem Frame
+    do
+        local rFrame = Instance.new("Frame", ScreenGui)
+        rFrame.Size = UDim2.new(0, 68, 0, 280)
+        rFrame.Position = UDim2.new(1, -74, 0.5, -140)
+        rFrame.BackgroundColor3 = Color3.fromRGB(8, 5, 15)
+        rFrame.BackgroundTransparency = 0.15
+        rFrame.BorderSizePixel = 0
+        rFrame.ZIndex = 19
+        Instance.new("UICorner", rFrame).CornerRadius = UDim.new(0, 14)
+        local rStroke = Instance.new("UIStroke", rFrame)
+        rStroke.Color = ACCENT; rStroke.Thickness = 1.5; rStroke.Transparency = 0.3
+
+        local function makeMobR(label, yPos, toggleName, onAct)
+            local btn = Instance.new("TextButton", rFrame)
+            btn.Size = UDim2.new(0, 58, 0, 58)
+            btn.Position = UDim2.new(0.5, -29, 0, yPos)
+            btn.BackgroundColor3 = MOB_OFF
+            btn.BackgroundTransparency = 0.1
+            btn.Text = label; btn.TextColor3 = WHITE
+            btn.Font = Enum.Font.GothamBold; btn.TextSize = 9
+            btn.TextWrapped = true; btn.BorderSizePixel = 0; btn.ZIndex = 20
+            Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 10)
+            local s = Instance.new("UIStroke", btn)
+            s.Color = ACCENT; s.Thickness = 1.5; s.Transparency = 0.3
+            table.insert(mobileButtons, btn)
+            if toggleName then mobBtnRefs[toggleName] = btn end
+            btn.MouseButton1Click:Connect(onAct)
+            return btn
+        end
+
+        makeMobR("AUTO\nR", 4, "Auto Play Right", function()
+            local ns=not aprOn
+            if ns then
+                if batAimbotEnabled then disableHitCircle(); updateToggle("Bat Aimbot + Hit Circle",false) end
+                if aplOn then stopAutoPlayLeft(); updateToggle("Auto Play Left",false) end
+                aprOn=true; startAutoPlayRight()
+            else stopAutoPlayRight() end
+            updateToggle("Auto Play Right",ns)
+        end)
+        makeMobR("PLAY\nR", 70, nil, function()
+            if not aprOn then aprOn=true; startAutoPlayRight(); updateToggle("Auto Play Right",true) end
+        end)
+        makeMobR("TP\nDOWN", 136, nil, function() task.spawn(doTPDown) end)
+        makeMobR("CARRY\nSPD", 202, "Slow Down", function()
+            local ns=not(toggleStates["Slow Down"] and toggleStates["Slow Down"].state)
+            slowDownEnabled=ns; updateToggle("Slow Down",ns)
+        end)
+    end
 end
 
 -- OPEN/CLOSE BUTTON
@@ -882,7 +926,14 @@ do
     local dragging,dragStart,startPos=false,nil,nil
     OBtn.InputBegan:Connect(function(input) if input.UserInputType==Enum.UserInputType.Touch or input.UserInputType==Enum.UserInputType.MouseButton1 then dragging=true; dragStart=input.Position; startPos=OBtn.Position; input.Changed:Connect(function() if input.UserInputState==Enum.UserInputState.End then dragging=false end end) end end)
     UserInputService.InputChanged:Connect(function(input) if dragging and (input.UserInputType==Enum.UserInputType.Touch or input.UserInputType==Enum.UserInputType.MouseMovement) then local d=input.Position-dragStart; OBtn.Position=UDim2.new(startPos.X.Scale,startPos.X.Offset+d.X,startPos.Y.Scale,startPos.Y.Offset+d.Y) end end)
-    OBtn.MouseButton1Click:Connect(function() MainFrame.Visible=not MainFrame.Visible; TweenService:Create(OS,TweenInfo.new(0.15),{Color=MainFrame.Visible and WHITE or ACCENT}):Play() end)
+    OBtn.MouseButton1Click:Connect(function()
+    MainFrame.Visible=not MainFrame.Visible
+    if MainFrame.Visible then
+        MainFrame.Size=UDim2.new(0,180,0,325)
+        MainFrame.Position=UDim2.new(0.5,-90,0.5,-162)
+    end
+    TweenService:Create(OS,TweenInfo.new(0.15),{Color=MainFrame.Visible and WHITE or ACCENT}):Play()
+end)
 end
 
 do local dragging,dragStart,startPos=false,nil,nil; TitleBar.InputBegan:Connect(function(input) if input.UserInputType==Enum.UserInputType.Touch or input.UserInputType==Enum.UserInputType.MouseButton1 then dragging=true; dragStart=input.Position; startPos=MainFrame.Position end end);
