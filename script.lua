@@ -854,67 +854,80 @@ do
     ProgressBarFill=Instance.new("Frame",pt); ProgressBarFill.Size=UDim2.new(0,0,1,0); ProgressBarFill.BackgroundColor3=ACCENT; ProgressBarFill.BorderSizePixel=0; ProgressBarFill.ZIndex=3; Instance.new("UICorner",ProgressBarFill).CornerRadius=UDim.new(1,0)
 end
 
--- MOBILE BUTTONS: Links: AUTO L, PLAY L, DROP, LOCK | Rechts: AUTO R, PLAY R, TP DOWN, CARRY SPD
+-- MOBILE BUTTONS: Alle 8 in einem Fenster, 2 Spalten
 do
-    local gap=62; local startY=-155; local col1=-120; local col2=-55
-    local function makeMob(label,xOffset,yOffset,toggleName,onAct) local btn=Instance.new("TextButton",ScreenGui); btn.Size=UDim2.new(0,58,0,58); btn.Position=UDim2.new(1,xOffset,0.5,yOffset); btn.BackgroundColor3=MOB_OFF; btn.BackgroundTransparency=0.1; btn.Text=label; btn.TextColor3=WHITE; btn.Font=Enum.Font.GothamBold; btn.TextSize=9; btn.TextWrapped=true; btn.BorderSizePixel=0; btn.ZIndex=20;
-    Instance.new("UICorner",btn).CornerRadius=UDim.new(0,10); local s=Instance.new("UIStroke",btn); s.Color=ACCENT; s.Thickness=1.5; s.Transparency=0.3; table.insert(mobileButtons,btn); if toggleName then mobBtnRefs[toggleName]=btn end; btn.MouseButton1Click:Connect(onAct); return btn end
+    local allFrame = Instance.new("Frame", ScreenGui)
+    allFrame.Size = UDim2.new(0, 142, 0, 286)
+    allFrame.Position = UDim2.new(1, -148, 0.5, -143)
+    allFrame.BackgroundColor3 = Color3.fromRGB(8, 5, 15)
+    allFrame.BackgroundTransparency = 0.1
+    allFrame.BorderSizePixel = 0
+    allFrame.ZIndex = 19
+    Instance.new("UICorner", allFrame).CornerRadius = UDim.new(0, 14)
+    local fStroke = Instance.new("UIStroke", allFrame)
+    fStroke.Color = ACCENT; fStroke.Thickness = 2; fStroke.Transparency = 0.2
 
-    -- Links
-    makeMob("AUTO\nL",col1,startY+gap*0,"Auto Play Left",function() local ns=not aplOn; if ns then if batAimbotEnabled then disableHitCircle(); updateToggle("Bat Aimbot + Hit Circle",false) end; if aprOn then stopAutoPlayRight(); updateToggle("Auto Play Right",false) end; aplOn=true; startAutoPlayLeft() else stopAutoPlayLeft() end; updateToggle("Auto Play Left",ns) end)
-    makeMob("PLAY\nL",col1,startY+gap*1,nil,function() if not aplOn then aplOn=true; startAutoPlayLeft(); updateToggle("Auto Play Left",true) end end)
-    makeMob("DROP",col1,startY+gap*2,nil,function() task.spawn(doDrop) end)
-    makeMob("LOCK",col1,startY+gap*3,"Anti Ragdoll",function() local ns=not(toggleStates["Anti Ragdoll"] and toggleStates["Anti Ragdoll"].state); antiRagdollEnabled=ns; if ns then startAntiRagdoll() else stopAntiRagdoll() end; updateToggle("Anti Ragdoll",ns) end)
-
-    -- Rechts: alle 4 in einem Frame
-    do
-        local rFrame = Instance.new("Frame", ScreenGui)
-        rFrame.Size = UDim2.new(0, 68, 0, 280)
-        rFrame.Position = UDim2.new(1, -74, 0.5, -140)
-        rFrame.BackgroundColor3 = Color3.fromRGB(8, 5, 15)
-        rFrame.BackgroundTransparency = 0.15
-        rFrame.BorderSizePixel = 0
-        rFrame.ZIndex = 19
-        Instance.new("UICorner", rFrame).CornerRadius = UDim.new(0, 14)
-        local rStroke = Instance.new("UIStroke", rFrame)
-        rStroke.Color = ACCENT; rStroke.Thickness = 1.5; rStroke.Transparency = 0.3
-
-        local function makeMobR(label, yPos, toggleName, onAct)
-            local btn = Instance.new("TextButton", rFrame)
-            btn.Size = UDim2.new(0, 58, 0, 58)
-            btn.Position = UDim2.new(0.5, -29, 0, yPos)
-            btn.BackgroundColor3 = MOB_OFF
-            btn.BackgroundTransparency = 0.1
-            btn.Text = label; btn.TextColor3 = WHITE
-            btn.Font = Enum.Font.GothamBold; btn.TextSize = 9
-            btn.TextWrapped = true; btn.BorderSizePixel = 0; btn.ZIndex = 20
-            Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 10)
-            local s = Instance.new("UIStroke", btn)
-            s.Color = ACCENT; s.Thickness = 1.5; s.Transparency = 0.3
-            table.insert(mobileButtons, btn)
-            if toggleName then mobBtnRefs[toggleName] = btn end
-            btn.MouseButton1Click:Connect(onAct)
-            return btn
-        end
-
-        makeMobR("AUTO\nR", 4, "Auto Play Right", function()
-            local ns=not aprOn
-            if ns then
-                if batAimbotEnabled then disableHitCircle(); updateToggle("Bat Aimbot + Hit Circle",false) end
-                if aplOn then stopAutoPlayLeft(); updateToggle("Auto Play Left",false) end
-                aprOn=true; startAutoPlayRight()
-            else stopAutoPlayRight() end
-            updateToggle("Auto Play Right",ns)
-        end)
-        makeMobR("PLAY\nR", 70, nil, function()
-            if not aprOn then aprOn=true; startAutoPlayRight(); updateToggle("Auto Play Right",true) end
-        end)
-        makeMobR("TP\nDOWN", 136, nil, function() task.spawn(doTPDown) end)
-        makeMobR("CARRY\nSPD", 202, "Slow Down", function()
-            local ns=not(toggleStates["Slow Down"] and toggleStates["Slow Down"].state)
-            slowDownEnabled=ns; updateToggle("Slow Down",ns)
-        end)
+    local function makeMobF(label, xPos, yPos, toggleName, onAct)
+        local btn = Instance.new("TextButton", allFrame)
+        btn.Size = UDim2.new(0, 60, 0, 60)
+        btn.Position = UDim2.new(0, xPos, 0, yPos)
+        btn.BackgroundColor3 = MOB_OFF
+        btn.BackgroundTransparency = 0.05
+        btn.Text = label; btn.TextColor3 = WHITE
+        btn.Font = Enum.Font.GothamBold; btn.TextSize = 10
+        btn.TextWrapped = true; btn.BorderSizePixel = 0; btn.ZIndex = 20
+        Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 10)
+        local s = Instance.new("UIStroke", btn)
+        s.Color = ACCENT; s.Thickness = 1.5; s.Transparency = 0.3
+        table.insert(mobileButtons, btn)
+        if toggleName then mobBtnRefs[toggleName] = btn end
+        btn.MouseButton1Click:Connect(onAct)
+        return btn
     end
+
+    local L = 6
+    local R = 76
+    local rows = {6, 72, 138, 204}
+
+    -- Links Spalte
+    makeMobF("AUTO\nL", L, rows[1], "Auto Play Left", function()
+        local ns=not aplOn
+        if ns then
+            if batAimbotEnabled then disableHitCircle(); updateToggle("Bat Aimbot + Hit Circle",false) end
+            if aprOn then stopAutoPlayRight(); updateToggle("Auto Play Right",false) end
+            aplOn=true; startAutoPlayLeft()
+        else stopAutoPlayLeft() end
+        updateToggle("Auto Play Left",ns)
+    end)
+    makeMobF("PLAY\nL", L, rows[2], nil, function()
+        if not aplOn then aplOn=true; startAutoPlayLeft(); updateToggle("Auto Play Left",true) end
+    end)
+    makeMobF("DROP", L, rows[3], nil, function() task.spawn(doDrop) end)
+    makeMobF("LOCK", L, rows[4], "Anti Ragdoll", function()
+        local ns=not(toggleStates["Anti Ragdoll"] and toggleStates["Anti Ragdoll"].state)
+        antiRagdollEnabled=ns
+        if ns then startAntiRagdoll() else stopAntiRagdoll() end
+        updateToggle("Anti Ragdoll",ns)
+    end)
+
+    -- Rechts Spalte
+    makeMobF("AUTO\nR", R, rows[1], "Auto Play Right", function()
+        local ns=not aprOn
+        if ns then
+            if batAimbotEnabled then disableHitCircle(); updateToggle("Bat Aimbot + Hit Circle",false) end
+            if aplOn then stopAutoPlayLeft(); updateToggle("Auto Play Left",false) end
+            aprOn=true; startAutoPlayRight()
+        else stopAutoPlayRight() end
+        updateToggle("Auto Play Right",ns)
+    end)
+    makeMobF("PLAY\nR", R, rows[2], nil, function()
+        if not aprOn then aprOn=true; startAutoPlayRight(); updateToggle("Auto Play Right",true) end
+    end)
+    makeMobF("TP\nDOWN", R, rows[3], nil, function() task.spawn(doTPDown) end)
+    makeMobF("CARRY\nSPD", R, rows[4], "Slow Down", function()
+        local ns=not(toggleStates["Slow Down"] and toggleStates["Slow Down"].state)
+        slowDownEnabled=ns; updateToggle("Slow Down",ns)
+    end)
 end
 
 -- OPEN/CLOSE BUTTON
