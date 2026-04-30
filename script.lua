@@ -1,29 +1,32 @@
--- S7 SHUB - Black & Purple Edition (Fixed)
--- Features: Lock (Bat Aimbot), Auto Steal, Lagger (12 Speed), Taunt, Discord Tag
+-- S7 SHUB - Black & Red Edition (Full Version)
+-- Features: Lock (Bat Aimbot - Red), Auto Steal, Lagger (12 speed), Taunt, Discord Tag
+-- All original S7 Hub features preserved
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Workspace = game:GetService("Workspace")
 local Lighting = game:GetService("Lighting")
+local Workspace = game:GetService("Workspace")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local CoreGui = game:GetService("CoreGui")
 local HttpService = game:GetService("HttpService")
 
 local player = Players.LocalPlayer
-local camera = workspace.CurrentCamera
+local camera = Workspace.CurrentCamera
 
--- ==================== COLORS ====================
-local ACCENT = Color3.fromRGB(156, 50, 255)  -- Purple
-local WHITE = Color3.fromRGB(240, 240, 255)
-local BG = Color3.fromRGB(10, 10, 15)
-local CARD = Color3.fromRGB(20, 20, 28)
-local OFF_CLR = Color3.fromRGB(35, 35, 48)
+-- ==================== COLORS (Black & Red) ====================
+local ACCENT = Color3.fromRGB(220, 60, 80)      -- Red
+local DARK_RED = Color3.fromRGB(140, 30, 45)
+local BG_DARK = Color3.fromRGB(8, 8, 12)
+local BG_CARD = Color3.fromRGB(18, 18, 24)
+local TEXT_BRIGHT = Color3.fromRGB(235, 235, 240)
+local TEXT_DIM = Color3.fromRGB(150, 150, 160)
 
 -- ==================== LAGGER VARIABLES ====================
 local laggerActive = false
 local laggerSlowSpeed = 10.5
-local laggerNormalSpeed = 12
+local laggerNormalSpeed = 12        -- Default 12, adjustable
 local laggerMonitorConns = {}
 
 local function updateLaggerSpeed()
@@ -77,17 +80,28 @@ local function cleanupLaggerMonitor()
     laggerMonitorConns = {}
 end
 
--- ==================== BAT AIMBOT (LOCK) ====================
-local batAimbotEnabled = false
+-- Helper to set lagger speed from GUI
+local function setLaggerSpeed(speed)
+    laggerNormalSpeed = speed
+    if laggerActive then
+        local char = player.Character
+        if char then
+            local hum = char:FindFirstChildOfClass("Humanoid")
+            if hum then hum.WalkSpeed = speed end
+        end
+    end
+end
+
+-- ==================== BAT AIMBOT (LOCK) - Red Version from Velt7 ====================
+local autoBatEnabled = false
+local autoSwingEnabled = false
+local lastBatSwing = 0
+local BAT_SWING_COOLDOWN = 0.12
 local aimbotConnection = nil
-local lockedTarget = nil
-local AIMBOT_SPEED = 60
-local MELEE_OFFSET = 3
-local BAT_ENGAGE_RANGE = 5
 
 local SlapList = {"Bat", "Slap", "Iron Slap", "Gold Slap", "Diamond Slap", "Emerald Slap", "Ruby Slap", "Dark Matter Slap", "Flame Slap", "Nuclear Slap", "Galaxy Slap", "Glitched Slap"}
 
-local function findBatTool()
+local function findBat()
     local c = player.Character
     if not c then return nil end
     local bp = player:FindFirstChildOfClass("Backpack")
@@ -110,82 +124,189 @@ local function findBatTool()
     return nil
 end
 
-local function isTargetValid(targetChar)
-    if not targetChar then return false end
-    local hum = targetChar:FindFirstChildOfClass("Humanoid")
-    local hrp = targetChar:FindFirstChild("HumanoidRootPart")
-    local ff = targetChar:FindFirstChildOfClass("ForceField")
-    return hum and hrp and hum.Health > 0 and not ff
-end
-
-local function getBestTarget(myHRP)
-    if lockedTarget and isTargetValid(lockedTarget) then
-        return lockedTarget:FindFirstChild("HumanoidRootPart"), lockedTarget
-    end
-    local shortestDist = math.huge
-    local newTargetChar, newTargetHRP = nil, nil
+local function getClosestPlayer()
+    local c = player.Character
+    if not c then return nil end
+    local hrp = c:FindFirstChild("HumanoidRootPart")
+    if not hrp then return nil end
+    local closest, closestDist = nil, math.huge
     for _, p in ipairs(Players:GetPlayers()) do
-        if p ~= player and isTargetValid(p.Character) then
-            local tHRP = p.Character:FindFirstChild("HumanoidRootPart")
-            if tHRP then
-                local d = (tHRP.Position - myHRP.Position).Magnitude
-                if d < shortestDist then
-                    shortestDist = d
-                    newTargetHRP = tHRP
-                    newTargetChar = p.Character
+        if p ~= player and p.Character then
+            local tr = p.Character:FindFirstChild("HumanoidRootPart")
+            if tr then
+                local d = (hrp.Position - tr.Position).Magnitude
+                if d < closestDist then
+                    closestDist = d
+                    closest = p
                 end
             end
         end
     end
-    lockedTarget = newTargetChar
-    return newTargetHRP, newTargetChar
+    return closest
 end
 
 local function startBatAimbot()
     if aimbotConnection then return end
+    autoBatEnabled = true
+    autoSwingEnabled = true
     aimbotConnection = RunService.Heartbeat:Connect(function()
-        if not batAimbotEnabled then return end
+        if not autoBatEnabled then return end
         local c = player.Character
         if not c then return end
-        local h = c:FindFirstChild("HumanoidRootPart")
-        local hum = c:FindFirstChildOfClass("Humanoid")
-        if not h or not hum then return end
-        local bat = findBatTool()
-        if bat and bat.Parent ~= c then hum:EquipTool(bat) end
-        local targetHRP, targetChar = getBestTarget(h)
-        if targetHRP and targetChar then
-            local targetVel = targetHRP.AssemblyLinearVelocity
-            local speed = targetVel.Magnitude
-            local predictTime = math.clamp(speed / 150, 0.05, 0.2)
-            local predictedPos = targetHRP.Position + (targetVel * predictTime)
-            local moveDir = predictedPos - h.Position
-            local distToStand = moveDir.Magnitude
-            if distToStand > 1.5 then
-                h.AssemblyLinearVelocity = moveDir.Unit * AIMBOT_SPEED
-            else
-                h.AssemblyLinearVelocity = targetVel
+        local hrp = c:FindFirstChild("HumanoidRootPart")
+        if not hrp then return end
+        local target = getClosestPlayer()
+        if target and target.Character then
+            local tr = target.Character:FindFirstChild("HumanoidRootPart")
+            if tr then
+                local fp = tr.Position + tr.CFrame.LookVector * 1.5
+                local dir = (fp - hrp.Position).Unit
+                hrp.AssemblyLinearVelocity = Vector3.new(dir.X * 56.5, dir.Y * 56.5, dir.Z * 56.5)
             end
-            hum.AutoRotate = false
-            h.CFrame = CFrame.lookAt(h.Position, Vector3.new(predictedPos.X, h.Position.Y, predictedPos.Z))
-            if distToStand <= BAT_ENGAGE_RANGE and bat then
-                pcall(function() bat:Activate() end)
+        end
+        if autoSwingEnabled then
+            local bat = findBat()
+            if bat then
+                if bat.Parent ~= c then
+                    local hum = c:FindFirstChildOfClass("Humanoid")
+                    if hum then hum:EquipTool(bat) end
+                end
+                local now = tick()
+                if now - lastBatSwing >= BAT_SWING_COOLDOWN then
+                    lastBatSwing = now
+                    pcall(function() bat:Activate() end)
+                end
             end
-        else
-            lockedTarget = nil
-            if h then h.AssemblyLinearVelocity = Vector3.new(0, h.AssemblyLinearVelocity.Y, 0) end
-            hum.AutoRotate = true
         end
     end)
 end
 
 local function stopBatAimbot()
-    if aimbotConnection then aimbotConnection:Disconnect(); aimbotConnection = nil end
-    lockedTarget = nil
-    local hum = getHum()
-    if hum then hum.AutoRotate = true end
+    if aimbotConnection then
+        aimbotConnection:Disconnect()
+        aimbotConnection = nil
+    end
+    autoBatEnabled = false
+    autoSwingEnabled = false
 end
 
--- ==================== AUTO STEAL ====================
+-- ==================== DISCORD TAG ====================
+local function createDiscordTag()
+    local function addTag()
+        local char = player.Character
+        if not char then return end
+        local head = char:FindFirstChild("Head")
+        if not head then return end
+        local existing = char:FindFirstChild("S7DiscordTag")
+        if existing then existing:Destroy() end
+        local billboard = Instance.new("BillboardGui")
+        billboard.Name = "S7DiscordTag"
+        billboard.Adornee = head
+        billboard.Size = UDim2.new(0, 160, 0, 28)
+        billboard.StudsOffset = Vector3.new(0, 2.5, 0)
+        billboard.AlwaysOnTop = true
+        billboard.Parent = char
+        local frame = Instance.new("Frame", billboard)
+        frame.Size = UDim2.new(1, 0, 1, 0)
+        frame.BackgroundColor3 = BG_DARK
+        frame.BackgroundTransparency = 0.15
+        frame.BorderSizePixel = 0
+        Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 12)
+        local stroke = Instance.new("UIStroke", frame)
+        stroke.Color = ACCENT
+        stroke.Thickness = 1
+        local text = Instance.new("TextLabel", frame)
+        text.Size = UDim2.new(1, 0, 1, 0)
+        text.BackgroundTransparency = 1
+        text.Text = "discord.gg/qMtvNQg68s"
+        text.TextColor3 = TEXT_BRIGHT
+        text.Font = Enum.Font.GothamBold
+        text.TextSize = 11
+        text.TextScaled = true
+    end
+    if player.Character then addTag() end
+    player.CharacterAdded:Connect(function()
+        task.wait(0.5)
+        addTag()
+    end)
+end
+
+-- ==================== TAUNT BUTTON (Draggable) ====================
+local tauntGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+tauntGui.Name = "S7TauntButton"
+tauntGui.ResetOnSpawn = false
+tauntGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+local tauntBtn = Instance.new("TextButton", tauntGui)
+tauntBtn.Size = UDim2.new(0, 70, 0, 35)
+tauntBtn.Position = UDim2.new(1, -80, 0.5, -50)
+tauntBtn.BackgroundColor3 = BG_CARD
+tauntBtn.Text = "TAUNT"
+tauntBtn.TextColor3 = TEXT_BRIGHT
+tauntBtn.Font = Enum.Font.GothamBlack
+tauntBtn.TextSize = 12
+tauntBtn.ZIndex = 20
+Instance.new("UICorner", tauntBtn).CornerRadius = UDim.new(0, 10)
+
+local tauntStroke = Instance.new("UIStroke", tauntBtn)
+tauntStroke.Color = ACCENT
+tauntStroke.Thickness = 1.5
+
+local tauntDragging = false
+local tauntDragStart = nil
+local tauntStartPos = nil
+
+tauntBtn.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        tauntDragging = true
+        tauntDragStart = input.Position
+        tauntStartPos = tauntBtn.Position
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if tauntDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        local delta = input.Position - tauntDragStart
+        tauntBtn.Position = UDim2.new(tauntStartPos.X.Scale, tauntStartPos.X.Offset + delta.X, tauntStartPos.Y.Scale, tauntStartPos.Y.Offset + delta.Y)
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        tauntDragging = false
+    end
+end)
+
+local tauntCooldown = false
+
+local function sendTaunt()
+    if tauntCooldown then return end
+    tauntCooldown = true
+    local chatEvent = ReplicatedStorage:FindFirstChild("DefaultChatSystemChatEvents")
+    if chatEvent then
+        local sayMsg = chatEvent:FindFirstChild("SayMessageRequest")
+        if sayMsg then
+            sayMsg:FireServer("/lol S7 Shub😂😂", "All")
+            task.wait(0.2)
+            sayMsg:FireServer("/lol S7 Shub😂😂", "All")
+        end
+    end
+    tauntBtn.BackgroundColor3 = DARK_RED
+    task.wait(3)
+    tauntBtn.BackgroundColor3 = BG_CARD
+    tauntCooldown = false
+end
+
+tauntBtn.MouseButton1Click:Connect(sendTaunt)
+
+tauntBtn.MouseEnter:Connect(function()
+    TweenService:Create(tauntBtn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(40, 40, 50)}):Play()
+end)
+tauntBtn.MouseLeave:Connect(function()
+    TweenService:Create(tauntBtn, TweenInfo.new(0.15), {BackgroundColor3 = BG_CARD}):Play()
+end)
+
+-- ==================== AUTO STEAL (Small progress bar) ====================
 local autoStealEnabled = false
 local isStealing = false
 local stealStartTime = nil
@@ -364,117 +485,10 @@ task.spawn(function()
     end
 end)
 
--- ==================== DISCORD TAG ====================
-local function createDiscordTag()
-    local function addTag()
-        local char = player.Character
-        if not char then return end
-        local head = char:FindFirstChild("Head")
-        if not head then return end
-        local existing = char:FindFirstChild("S7DiscordTag")
-        if existing then existing:Destroy() end
-        local billboard = Instance.new("BillboardGui")
-        billboard.Name = "S7DiscordTag"
-        billboard.Adornee = head
-        billboard.Size = UDim2.new(0, 160, 0, 28)
-        billboard.StudsOffset = Vector3.new(0, 2.5, 0)
-        billboard.AlwaysOnTop = true
-        billboard.Parent = char
-        local frame = Instance.new("Frame", billboard)
-        frame.Size = UDim2.new(1, 0, 1, 0)
-        frame.BackgroundColor3 = BG
-        frame.BackgroundTransparency = 0.15
-        frame.BorderSizePixel = 0
-        Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 12)
-        local stroke = Instance.new("UIStroke", frame)
-        stroke.Color = ACCENT
-        stroke.Thickness = 1
-        local text = Instance.new("TextLabel", frame)
-        text.Size = UDim2.new(1, 0, 1, 0)
-        text.BackgroundTransparency = 1
-        text.Text = "discord.gg/qMtvNQg68s"
-        text.TextColor3 = WHITE
-        text.Font = Enum.Font.GothamBold
-        text.TextSize = 11
-        text.TextScaled = true
-    end
-    if player.Character then addTag() end
-    player.CharacterAdded:Connect(function()
-        task.wait(0.5)
-        addTag()
-    end)
-end
-
--- ==================== TAUNT BUTTON ====================
-local tauntGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
-tauntGui.Name = "S7TauntButton"
-tauntGui.ResetOnSpawn = false
-
-local tauntBtn = Instance.new("TextButton", tauntGui)
-tauntBtn.Size = UDim2.new(0, 70, 0, 35)
-tauntBtn.Position = UDim2.new(1, -80, 0.5, -50)
-tauntBtn.BackgroundColor3 = CARD
-tauntBtn.Text = "TAUNT"
-tauntBtn.TextColor3 = WHITE
-tauntBtn.Font = Enum.Font.GothamBlack
-tauntBtn.TextSize = 12
-tauntBtn.ZIndex = 20
-Instance.new("UICorner", tauntBtn).CornerRadius = UDim.new(0, 10)
-
-local tauntStroke = Instance.new("UIStroke", tauntBtn)
-tauntStroke.Color = ACCENT
-tauntStroke.Thickness = 1.5
-
-local tauntDragging = false
-local tauntDragStart = nil
-local tauntStartPos = nil
-
-tauntBtn.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        tauntDragging = true
-        tauntDragStart = input.Position
-        tauntStartPos = tauntBtn.Position
-    end
-end)
-
-UserInputService.InputChanged:Connect(function(input)
-    if tauntDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-        local delta = input.Position - tauntDragStart
-        tauntBtn.Position = UDim2.new(tauntStartPos.X.Scale, tauntStartPos.X.Offset + delta.X, tauntStartPos.Y.Scale, tauntStartPos.Y.Offset + delta.Y)
-    end
-end)
-
-UserInputService.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        tauntDragging = false
-    end
-end)
-
-local tauntCooldown = false
-
-local function sendTaunt()
-    if tauntCooldown then return end
-    tauntCooldown = true
-    local chatEvent = ReplicatedStorage:FindFirstChild("DefaultChatSystemChatEvents")
-    if chatEvent then
-        local sayMsg = chatEvent:FindFirstChild("SayMessageRequest")
-        if sayMsg then
-            sayMsg:FireServer("/lol S7 Shub😂😂", "All")
-            task.wait(0.2)
-            sayMsg:FireServer("/lol S7 Shub😂😂", "All")
-        end
-    end
-    tauntBtn.BackgroundColor3 = Color3.fromRGB(80, 30, 150)
-    task.wait(3)
-    tauntBtn.BackgroundColor3 = CARD
-    tauntCooldown = false
-end
-
-tauntBtn.MouseButton1Click:Connect(sendTaunt)
-
--- ==================== VARIABLES ====================
+-- ==================== VARIABLES (Original S7 Hub) ====================
 NORMAL_SPEED = 60
 SLOW_SPEED = 29
+AIMBOT_SPEED = 60
 
 POS_L1 = Vector3.new(-476.48, -6.28, 92.73)
 POS_L2 = Vector3.new(-483.12, -4.95, 94.80)
@@ -760,7 +774,7 @@ local function saveConfig()
             galaxyEnabled = galaxyEnabled,
             optimizerEnabled = optimizerEnabled,
             autoStealEnabled = autoStealEnabled,
-            batAimbotEnabled = batAimbotEnabled,
+            batAimbotEnabled = autoBatEnabled,
             autoSaveEnabled = autoSaveEnabled,
             medusaCounterEnabled = medusaCounterEnabled,
             goodAnimEnabled = goodAnimEnabled,
@@ -802,7 +816,7 @@ local function loadConfig()
         if data.galaxyEnabled ~= nil then galaxyEnabled = data.galaxyEnabled end
         if data.optimizerEnabled ~= nil then optimizerEnabled = data.optimizerEnabled end
         if data.autoStealEnabled ~= nil then autoStealEnabled = data.autoStealEnabled end
-        if data.batAimbotEnabled ~= nil then batAimbotEnabled = data.batAimbotEnabled end
+        if data.batAimbotEnabled ~= nil then autoBatEnabled = data.batAimbotEnabled end
         if data.autoSaveEnabled ~= nil then autoSaveEnabled = data.autoSaveEnabled end
         if data.medusaCounterEnabled ~= nil then medusaCounterEnabled = data.medusaCounterEnabled end
         if data.goodAnimEnabled ~= nil then goodAnimEnabled = data.goodAnimEnabled end
@@ -829,7 +843,7 @@ if laggerActive then
     end)
 end
 
--- ==================== MOVEMENT FUNCTIONS ====================
+-- ==================== MOVEMENT FUNCTIONS (Original) ====================
 local function doTPDown()
     task.spawn(function()
         pcall(function()
@@ -1080,7 +1094,7 @@ local function createESP(plr)
     lbl.Font = Enum.Font.GothamBold
     lbl.TextScaled = true
     lbl.TextStrokeTransparency = 0.5
-    lbl.TextStrokeColor3 = Color3.fromRGB(100, 30, 150)
+    lbl.TextStrokeColor3 = DARK_RED
     lbl.Parent = bb
 end
 
@@ -1251,7 +1265,7 @@ local function stopSpin()
     if spinBAV then spinBAV:Destroy(); spinBAV = nil end
 end
 
--- Auto Left/Right Movement
+-- Auto Left/Right Movement (FAP waypoints)
 local function stopAutoL()
     autoLOn = false
     if autoLConn then autoLConn:Disconnect(); autoLConn = nil end
@@ -1291,7 +1305,7 @@ local function startAutoL()
                 local info = mobBtnRefs["AUTO L"]
                 if info then
                     info.btn.BackgroundColor3 = Color3.fromRGB(8, 8, 8)
-                    info.bs.Color = Color3.fromRGB(100, 30, 150)
+                    info.bs.Color = DARK_RED
                     info.bs.Transparency = 0.2
                     info.state = false
                 end
@@ -1333,7 +1347,7 @@ local function startAutoR()
                 local info = mobBtnRefs["AUTO R"]
                 if info then
                     info.btn.BackgroundColor3 = Color3.fromRGB(8, 8, 8)
-                    info.bs.Color = Color3.fromRGB(100, 30, 150)
+                    info.bs.Color = DARK_RED
                     info.bs.Transparency = 0.2
                     info.state = false
                 end
@@ -1356,7 +1370,7 @@ local function startAutoR()
     end)
 end
 
--- Auto Play Left/Right
+-- Auto Play Left/Right (Play positions)
 local function stopAutoPlayLeft()
     aplOn = false
     if aplConn then aplConn:Disconnect(); aplConn = nil end
@@ -1394,7 +1408,7 @@ local function startAutoPlayLeft()
                 local info = mobBtnRefs["PLAY L"]
                 if info then
                     info.btn.BackgroundColor3 = Color3.fromRGB(8, 8, 8)
-                    info.bs.Color = Color3.fromRGB(100, 30, 150)
+                    info.bs.Color = DARK_RED
                     info.bs.Transparency = 0.2
                     info.state = false
                 end
@@ -1428,7 +1442,7 @@ local function startAutoPlayRight()
                 local info = mobBtnRefs["PLAY R"]
                 if info then
                     info.btn.BackgroundColor3 = Color3.fromRGB(8, 8, 8)
-                    info.bs.Color = Color3.fromRGB(100, 30, 150)
+                    info.bs.Color = DARK_RED
                     info.bs.Transparency = 0.2
                     info.state = false
                 end
@@ -1457,7 +1471,7 @@ RunService.Heartbeat:Connect(function()
     if galaxyEnabled and hopsEnabled and spaceHeld then
         doHop()
     end
-    if not batAimbotEnabled and not aplOn and not aprOn and not autoLOn and not autoROn then
+    if not autoBatEnabled and not aplOn and not aprOn and not autoLOn and not autoROn then
         local md = gHum.MoveDirection
         if md.Magnitude > 0.1 then
             local spd = slowDownEnabled and SLOW_SPEED or NORMAL_SPEED
@@ -1506,7 +1520,7 @@ local function setupChar(c)
     if espEnabled then
         pcall(enableESP)
     end
-    if batAimbotEnabled then
+    if autoBatEnabled then
         pcall(stopBatAimbot)
         task.wait(0.1)
         pcall(startBatAimbot)
@@ -1582,9 +1596,9 @@ local function createLaggerGUI()
 
     local mainFrame = Instance.new("Frame")
     mainFrame.Name = "LaggerFrame"
-    mainFrame.Size = UDim2.new(0, 235, 0, 130)
+    mainFrame.Size = UDim2.new(0, 235, 0, 150)
     mainFrame.Position = UDim2.new(1, -250, 0.45, 0)
-    mainFrame.BackgroundColor3 = BG
+    mainFrame.BackgroundColor3 = BG_DARK
     mainFrame.BackgroundTransparency = 0.1
     mainFrame.Active = true
     mainFrame.Parent = screenGui
@@ -1602,7 +1616,7 @@ local function createLaggerGUI()
     titleLabel.Text = "S7 LAGGER PANEL"
     titleLabel.Font = Enum.Font.LuckiestGuy
     titleLabel.TextSize = 12
-    titleLabel.TextColor3 = WHITE
+    titleLabel.TextColor3 = TEXT_BRIGHT
     titleLabel.TextXAlignment = Enum.TextXAlignment.Left
     titleLabel.Size = UDim2.new(1, -50, 0, 28)
     titleLabel.Position = UDim2.new(0, 14, 0, 8)
@@ -1647,7 +1661,7 @@ local function createLaggerGUI()
     laggerText.Text = "LAGGER:"
     laggerText.Font = Enum.Font.LuckiestGuy
     laggerText.TextSize = 14
-    laggerText.TextColor3 = WHITE
+    laggerText.TextColor3 = TEXT_BRIGHT
     laggerText.TextXAlignment = Enum.TextXAlignment.Left
     laggerText.Size = UDim2.new(0.45, 0, 1, 0)
     laggerText.BackgroundTransparency = 1
@@ -1656,7 +1670,7 @@ local function createLaggerGUI()
     local laggerStatusBox = Instance.new("TextLabel")
     laggerStatusBox.Size = UDim2.new(0.5, 0, 1, 0)
     laggerStatusBox.Position = UDim2.new(0.48, 0, 0, 0)
-    laggerStatusBox.BackgroundColor3 = CARD
+    laggerStatusBox.BackgroundColor3 = BG_CARD
     laggerStatusBox.BackgroundTransparency = 0.1
     laggerStatusBox.Text = "OFF"
     laggerStatusBox.TextColor3 = Color3.fromRGB(255, 80, 80)
@@ -1670,9 +1684,9 @@ local function createLaggerGUI()
 
     local laggerToggleBtn = Instance.new("TextButton")
     laggerToggleBtn.Size = UDim2.new(1, -10, 0, 38)
-    laggerToggleBtn.BackgroundColor3 = CARD
+    laggerToggleBtn.BackgroundColor3 = BG_CARD
     laggerToggleBtn.Text = "TOGGLE LAGGER"
-    laggerToggleBtn.TextColor3 = WHITE
+    laggerToggleBtn.TextColor3 = TEXT_BRIGHT
     laggerToggleBtn.TextSize = 13
     laggerToggleBtn.Font = Enum.Font.LuckiestGuy
     laggerToggleBtn.LayoutOrder = 2
@@ -1692,16 +1706,16 @@ local function createLaggerGUI()
     speedText.Text = "LAGGER SPEED:"
     speedText.Font = Enum.Font.LuckiestGuy
     speedText.TextSize = 12
-    speedText.TextColor3 = Color3.fromRGB(180, 180, 190)
+    speedText.TextColor3 = TEXT_DIM
     speedText.TextXAlignment = Enum.TextXAlignment.Left
     speedText.Size = UDim2.new(0.55, 0, 1, 0)
     speedText.BackgroundTransparency = 1
     speedText.Parent = speedRow
 
     local speedBox = Instance.new("TextBox")
-    speedBox.Size = UDim2.new(0, 50, 0, 24)
-    speedBox.Position = UDim2.new(0.65, 0, 0.5, -12)
-    speedBox.BackgroundColor3 = CARD
+    speedBox.Size = UDim2.new(0, 60, 0, 24)
+    speedBox.Position = UDim2.new(0.6, 0, 0.5, -12)
+    speedBox.BackgroundColor3 = BG_CARD
     speedBox.Text = tostring(laggerNormalSpeed)
     speedBox.TextColor3 = ACCENT
     speedBox.Font = Enum.Font.GothamBold
@@ -1715,7 +1729,6 @@ local function createLaggerGUI()
     speedBox.FocusLost:Connect(function()
         local n = tonumber(speedBox.Text)
         if n and n >= 1 and n <= 100 then
-            laggerNormalSpeed = n
             setLaggerSpeed(n)
             saveConfig()
         else
@@ -1726,14 +1739,14 @@ local function createLaggerGUI()
     local function updateLaggerBtnUI()
         if laggerActive then
             laggerToggleBtn.Text = "LAGGER ACTIVE ✓"
-            laggerToggleBtn.BackgroundColor3 = Color3.fromRGB(80, 30, 150)
+            laggerToggleBtn.BackgroundColor3 = DARK_RED
             laggerToggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
             laggerStatusBox.Text = "ACTIVE"
             laggerStatusBox.TextColor3 = ACCENT
         else
             laggerToggleBtn.Text = "TOGGLE LAGGER"
-            laggerToggleBtn.BackgroundColor3 = CARD
-            laggerToggleBtn.TextColor3 = WHITE
+            laggerToggleBtn.BackgroundColor3 = BG_CARD
+            laggerToggleBtn.TextColor3 = TEXT_BRIGHT
             laggerStatusBox.Text = "OFF"
             laggerStatusBox.TextColor3 = Color3.fromRGB(255, 80, 80)
         end
@@ -1744,7 +1757,7 @@ local function createLaggerGUI()
         updateLaggerBtnUI()
 
         if laggerActive then
-            laggerNormalSpeed = tonumber(speedBox.Text) or 12
+            setLaggerSpeed(tonumber(speedBox.Text) or 12)
             setupLaggerMonitor()
             local char = player.Character
             if char then
@@ -1752,12 +1765,12 @@ local function createLaggerGUI()
                 if hum then hum.WalkSpeed = laggerNormalSpeed end
             end
         else
+            cleanupLaggerMonitor()
             local char = player.Character
             if char then
                 local hum = char:FindFirstChildOfClass("Humanoid")
                 if hum then hum.WalkSpeed = 16 end
             end
-            cleanupLaggerMonitor()
         end
         saveConfig()
     end)
@@ -1771,7 +1784,7 @@ local function createLaggerGUI()
         else
             dropdownBtn.Text = "▼"
             contentFrame.Visible = true
-            mainFrame:TweenSize(UDim2.new(0, 235, 0, 130), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.25, true)
+            mainFrame:TweenSize(UDim2.new(0, 235, 0, 150), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.25, true)
         end
     end)
 
@@ -1785,18 +1798,6 @@ local function destroyLaggerGUI()
     if laggerPanel then
         laggerPanel:Destroy()
         laggerPanel = nil
-    end
-end
-
--- Helper function for setting lagger speed
-local function setLaggerSpeed(speed)
-    laggerNormalSpeed = speed
-    if laggerActive then
-        local char = player.Character
-        if char then
-            local hum = char:FindFirstChildOfClass("Humanoid")
-            if hum then hum.WalkSpeed = speed end
-        end
     end
 end
 
@@ -1877,7 +1878,7 @@ local function createDesyncGUI()
     mainFrame.Name = "DesyncFrame"
     mainFrame.Size = UDim2.new(0, 235, 0, 178)
     mainFrame.Position = UDim2.new(1, -250, 0.32, 0)
-    mainFrame.BackgroundColor3 = BG
+    mainFrame.BackgroundColor3 = BG_DARK
     mainFrame.BackgroundTransparency = 0.1
     mainFrame.Active = true
     mainFrame.Parent = screenGui
@@ -1895,7 +1896,7 @@ local function createDesyncGUI()
     titleLabel.Text = "S7 DESYNC PANEL"
     titleLabel.Font = Enum.Font.LuckiestGuy
     titleLabel.TextSize = 12
-    titleLabel.TextColor3 = WHITE
+    titleLabel.TextColor3 = TEXT_BRIGHT
     titleLabel.TextXAlignment = Enum.TextXAlignment.Left
     titleLabel.Size = UDim2.new(1, -50, 0, 28)
     titleLabel.Position = UDim2.new(0, 14, 0, 8)
@@ -1940,7 +1941,7 @@ local function createDesyncGUI()
     desyncText.Text = "DESYNC ACTIVE:"
     desyncText.Font = Enum.Font.LuckiestGuy
     desyncText.TextSize = 13
-    desyncText.TextColor3 = WHITE
+    desyncText.TextColor3 = TEXT_BRIGHT
     desyncText.TextXAlignment = Enum.TextXAlignment.Left
     desyncText.Size = UDim2.new(0.55, 0, 1, 0)
     desyncText.BackgroundTransparency = 1
@@ -1949,7 +1950,7 @@ local function createDesyncGUI()
     desyncStatusBox = Instance.new("TextLabel")
     desyncStatusBox.Size = UDim2.new(0.4, 0, 1, 0)
     desyncStatusBox.Position = UDim2.new(0.58, 0, 0, 0)
-    desyncStatusBox.BackgroundColor3 = CARD
+    desyncStatusBox.BackgroundColor3 = BG_CARD
     desyncStatusBox.BackgroundTransparency = 0.1
     desyncStatusBox.Text = "OFF"
     desyncStatusBox.TextColor3 = Color3.fromRGB(255, 80, 80)
@@ -1963,9 +1964,9 @@ local function createDesyncGUI()
 
     local desyncActiveBtn = Instance.new("TextButton")
     desyncActiveBtn.Size = UDim2.new(1, -10, 0, 38)
-    desyncActiveBtn.BackgroundColor3 = CARD
+    desyncActiveBtn.BackgroundColor3 = BG_CARD
     desyncActiveBtn.Text = "TOGGLE DESYNC"
-    desyncActiveBtn.TextColor3 = WHITE
+    desyncActiveBtn.TextColor3 = TEXT_BRIGHT
     desyncActiveBtn.TextSize = 13
     desyncActiveBtn.Font = Enum.Font.LuckiestGuy
     desyncActiveBtn.LayoutOrder = 2
@@ -1977,9 +1978,9 @@ local function createDesyncGUI()
 
     local noAnimBtn = Instance.new("TextButton")
     noAnimBtn.Size = UDim2.new(1, -10, 0, 38)
-    noAnimBtn.BackgroundColor3 = CARD
+    noAnimBtn.BackgroundColor3 = BG_CARD
     noAnimBtn.Text = "NO ANIM: OFF"
-    noAnimBtn.TextColor3 = WHITE
+    noAnimBtn.TextColor3 = TEXT_BRIGHT
     noAnimBtn.TextSize = 13
     noAnimBtn.Font = Enum.Font.LuckiestGuy
     noAnimBtn.LayoutOrder = 3
@@ -1992,14 +1993,14 @@ local function createDesyncGUI()
     local function updateDesyncBtnUI()
         if desyncActive then
             desyncActiveBtn.Text = "DESYNC ACTIVE ✓"
-            desyncActiveBtn.BackgroundColor3 = Color3.fromRGB(80, 30, 150)
+            desyncActiveBtn.BackgroundColor3 = DARK_RED
             desyncActiveBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
             desyncStatusBox.Text = "ACTIVE"
             desyncStatusBox.TextColor3 = ACCENT
         else
             desyncActiveBtn.Text = "TOGGLE DESYNC"
-            desyncActiveBtn.BackgroundColor3 = CARD
-            desyncActiveBtn.TextColor3 = WHITE
+            desyncActiveBtn.BackgroundColor3 = BG_CARD
+            desyncActiveBtn.TextColor3 = TEXT_BRIGHT
             desyncStatusBox.Text = "OFF"
             desyncStatusBox.TextColor3 = Color3.fromRGB(255, 80, 80)
         end
@@ -2008,12 +2009,12 @@ local function createDesyncGUI()
     local function updateNoAnimBtnUI()
         if noAnimActive then
             noAnimBtn.Text = "NO ANIM: ON ✓"
-            noAnimBtn.BackgroundColor3 = Color3.fromRGB(80, 30, 150)
+            noAnimBtn.BackgroundColor3 = DARK_RED
             noAnimBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
         else
             noAnimBtn.Text = "NO ANIM: OFF"
-            noAnimBtn.BackgroundColor3 = CARD
-            noAnimBtn.TextColor3 = WHITE
+            noAnimBtn.BackgroundColor3 = BG_CARD
+            noAnimBtn.TextColor3 = TEXT_BRIGHT
         end
     end
 
@@ -2058,7 +2059,7 @@ local function destroyDesyncGUI()
     end
 end
 
--- ==================== MAIN GUI ====================
+-- ==================== MAIN GUI (Original S7 Hub layout) ====================
 task.spawn(function()
     local ScreenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
     ScreenGui.Name = "S7Hub_V1"
@@ -2075,7 +2076,7 @@ task.spawn(function()
     local toggleMenuBtn = Instance.new("TextButton", ScreenGui)
     toggleMenuBtn.Size = UDim2.new(0, 34, 0, 34)
     toggleMenuBtn.Position = UDim2.new(1, -142, 0, 10)
-    toggleMenuBtn.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
+    toggleMenuBtn.BackgroundColor3 = Color3.fromRGB(15, 15, 22)
     toggleMenuBtn.Text = "S7"
     toggleMenuBtn.TextColor3 = ACCENT
     toggleMenuBtn.Font = Enum.Font.GothamBlack
@@ -2090,7 +2091,7 @@ task.spawn(function()
     local lockBtn = Instance.new("TextButton", ScreenGui)
     lockBtn.Size = UDim2.new(0, 34, 0, 34)
     lockBtn.Position = UDim2.new(1, -180, 0, 10)
-    lockBtn.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
+    lockBtn.BackgroundColor3 = Color3.fromRGB(15, 15, 22)
     lockBtn.Text = "🔒"
     lockBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
     lockBtn.Font = Enum.Font.GothamBold
@@ -2098,7 +2099,7 @@ task.spawn(function()
     lockBtn.BackgroundTransparency = 0.1
     lockBtn.ZIndex = 10
     Instance.new("UICorner", lockBtn).CornerRadius = UDim.new(0, 9)
-    Instance.new("UIStroke", lockBtn).Color = Color3.fromRGB(100, 30, 150)
+    Instance.new("UIStroke", lockBtn).Color = DARK_RED
 
     local dragLocked = false
     lockBtn.MouseButton1Click:Connect(function()
@@ -2110,7 +2111,7 @@ task.spawn(function()
     local mainFrame = Instance.new("Frame", ScreenGui)
     mainFrame.Size = UDim2.new(0, 240, 0, 480)
     mainFrame.Position = UDim2.new(0, 10, 0, 55)
-    mainFrame.BackgroundColor3 = BG
+    mainFrame.BackgroundColor3 = BG_DARK
     mainFrame.BackgroundTransparency = 0
     mainFrame.BorderSizePixel = 0
     mainFrame.Active = true
@@ -2129,7 +2130,7 @@ task.spawn(function()
     local leftDrag = Instance.new("Frame", mainFrame)
     leftDrag.Size = UDim2.new(0, 6, 1, -28)
     leftDrag.Position = UDim2.new(0, 0, 0, 14)
-    leftDrag.BackgroundColor3 = Color3.fromRGB(100, 30, 150)
+    leftDrag.BackgroundColor3 = DARK_RED
     leftDrag.BorderSizePixel = 0
     leftDrag.ZIndex = 10
     leftDrag.Active = true
@@ -2244,7 +2245,7 @@ task.spawn(function()
     FPSLbl.Text = "0 FPS"
     FPSLbl.Font = Enum.Font.GothamBold
     FPSLbl.TextSize = 8
-    FPSLbl.TextColor3 = WHITE
+    FPSLbl.TextColor3 = TEXT_BRIGHT
     FPSLbl.TextXAlignment = Enum.TextXAlignment.Right
     FPSLbl.ZIndex = 5
 
@@ -2262,9 +2263,9 @@ task.spawn(function()
     local minBtn = Instance.new("TextButton", titleBar)
     minBtn.Size = UDim2.new(0, 15, 0, 12)
     minBtn.Position = UDim2.new(1, -18, 0.5, -6)
-    minBtn.BackgroundColor3 = Color3.fromRGB(100, 30, 150)
+    minBtn.BackgroundColor3 = DARK_RED
     minBtn.Text = "−"
-    minBtn.TextColor3 = WHITE
+    minBtn.TextColor3 = TEXT_BRIGHT
     minBtn.Font = Enum.Font.GothamBold
     minBtn.TextSize = 10
     minBtn.ZIndex = 5
@@ -2336,7 +2337,7 @@ task.spawn(function()
         local div = Instance.new("Frame", row)
         div.Size = UDim2.new(1, -6, 0, 1)
         div.Position = UDim2.new(0, 3, 1, -1)
-        div.BackgroundColor3 = Color3.fromRGB(100, 30, 150)
+        div.BackgroundColor3 = DARK_RED
         div.BorderSizePixel = 0
         div.ZIndex = 3
 
@@ -2347,7 +2348,7 @@ task.spawn(function()
         lbl.Text = label
         lbl.Font = Enum.Font.GothamSemibold
         lbl.TextSize = 10
-        lbl.TextColor3 = WHITE
+        lbl.TextColor3 = TEXT_BRIGHT
         lbl.TextXAlignment = Enum.TextXAlignment.Left
         lbl.ZIndex = 3
 
@@ -2398,7 +2399,7 @@ task.spawn(function()
         local div = Instance.new("Frame", row)
         div.Size = UDim2.new(1, -6, 0, 1)
         div.Position = UDim2.new(0, 3, 1, -1)
-        div.BackgroundColor3 = Color3.fromRGB(100, 30, 150)
+        div.BackgroundColor3 = DARK_RED
         div.BorderSizePixel = 0
         div.ZIndex = 3
 
@@ -2409,7 +2410,7 @@ task.spawn(function()
         lbl.Text = label
         lbl.Font = Enum.Font.GothamSemibold
         lbl.TextSize = 10
-        lbl.TextColor3 = WHITE
+        lbl.TextColor3 = TEXT_BRIGHT
         lbl.TextXAlignment = Enum.TextXAlignment.Left
         lbl.ZIndex = 3
 
@@ -2426,7 +2427,7 @@ task.spawn(function()
         Instance.new("UICorner", vb).CornerRadius = UDim.new(0, 5)
 
         local vbStroke = Instance.new("UIStroke", vb)
-        vbStroke.Color = Color3.fromRGB(100, 30, 150)
+        vbStroke.Color = DARK_RED
 
         vb.FocusLost:Connect(function()
             local n = tonumber(vb.Text)
@@ -2450,7 +2451,7 @@ task.spawn(function()
         local div = Instance.new("Frame", row)
         div.Size = UDim2.new(1, -6, 0, 1)
         div.Position = UDim2.new(0, 3, 1, -1)
-        div.BackgroundColor3 = Color3.fromRGB(100, 30, 150)
+        div.BackgroundColor3 = DARK_RED
         div.BorderSizePixel = 0
         div.ZIndex = 3
 
@@ -2459,14 +2460,14 @@ task.spawn(function()
         btn.Position = UDim2.new(0, 6, 0.5, -8)
         btn.BackgroundColor3 = Color3.fromRGB(28, 28, 38)
         btn.Text = text
-        btn.TextColor3 = WHITE
+        btn.TextColor3 = TEXT_BRIGHT
         btn.Font = Enum.Font.GothamBold
         btn.TextSize = 10
         btn.ZIndex = 3
         Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 7)
 
         local btnStroke = Instance.new("UIStroke", btn)
-        btnStroke.Color = Color3.fromRGB(100, 30, 150)
+        btnStroke.Color = DARK_RED
 
         btn.MouseButton1Click:Connect(function()
             if cb then cb(btn) end
@@ -2485,7 +2486,7 @@ task.spawn(function()
         local div = Instance.new("Frame", row)
         div.Size = UDim2.new(1, -6, 0, 1)
         div.Position = UDim2.new(0, 3, 1, -1)
-        div.BackgroundColor3 = Color3.fromRGB(100, 30, 150)
+        div.BackgroundColor3 = DARK_RED
         div.BorderSizePixel = 0
         div.ZIndex = 3
 
@@ -2496,7 +2497,7 @@ task.spawn(function()
         lbl.Text = label
         lbl.Font = Enum.Font.GothamSemibold
         lbl.TextSize = 9
-        lbl.TextColor3 = Color3.fromRGB(150, 150, 160)
+        lbl.TextColor3 = TEXT_DIM
         lbl.TextXAlignment = Enum.TextXAlignment.Left
         lbl.ZIndex = 3
 
@@ -2512,7 +2513,7 @@ task.spawn(function()
         Instance.new("UICorner", kbBtn).CornerRadius = UDim.new(0, 4)
 
         local kbStroke = Instance.new("UIStroke", kbBtn)
-        kbStroke.Color = Color3.fromRGB(100, 30, 150)
+        kbStroke.Color = DARK_RED
 
         local waiting = false
         kbBtn.MouseButton1Click:Connect(function()
@@ -2533,7 +2534,7 @@ task.spawn(function()
         end)
     end
 
-    -- GUI Sections
+    -- GUI Sections (Original S7 Hub)
     makeSectionHeader("MOVEMENT")
     makeToggleRow("Spin Bot", spinBotEnabled, function(s)
         spinBotEnabled = s
@@ -2579,8 +2580,7 @@ task.spawn(function()
     end)
 
     makeSectionHeader("AUTOMATION")
-    makeToggleRow("Lock (Bat Aimbot)", batAimbotEnabled, function(s)
-        batAimbotEnabled = s
+    makeToggleRow("Lock (Bat Aimbot)", autoBatEnabled, function(s)
         if s then
             if aplOn then stopAutoPlayLeft(); if toggleSetters["Play Left"] then toggleSetters["Play Left"](false) end end
             if aprOn then stopAutoPlayRight(); if toggleSetters["Play Right"] then toggleSetters["Play Right"](false) end end
@@ -2601,10 +2601,9 @@ task.spawn(function()
         STEAL_RADIUS = math.clamp(v, 1, 300)
         saveConfig()
     end)
-
     makeToggleRow("Auto Left", false, function(s)
         if s then
-            if batAimbotEnabled then stopBatAimbot(); if toggleSetters["Lock"] then toggleSetters["Lock"](false) end end
+            if autoBatEnabled then stopBatAimbot(); if toggleSetters["Lock"] then toggleSetters["Lock"](false) end end
             if aprOn then stopAutoPlayRight(); if toggleSetters["Play Right"] then toggleSetters["Play Right"](false) end end
             if autoROn then stopAutoR(); if toggleSetters["Auto Right"] then toggleSetters["Auto Right"](false) end end
             if aplOn then stopAutoPlayLeft(); if toggleSetters["Play Left"] then toggleSetters["Play Left"](false) end end
@@ -2617,7 +2616,7 @@ task.spawn(function()
     end)
     makeToggleRow("Auto Right", false, function(s)
         if s then
-            if batAimbotEnabled then stopBatAimbot(); if toggleSetters["Lock"] then toggleSetters["Lock"](false) end end
+            if autoBatEnabled then stopBatAimbot(); if toggleSetters["Lock"] then toggleSetters["Lock"](false) end end
             if aplOn then stopAutoPlayLeft(); if toggleSetters["Play Left"] then toggleSetters["Play Left"](false) end end
             if autoLOn then stopAutoL(); if toggleSetters["Auto Left"] then toggleSetters["Auto Left"](false) end end
             if aprOn then stopAutoPlayRight(); if toggleSetters["Play Right"] then toggleSetters["Play Right"](false) end end
@@ -2630,7 +2629,7 @@ task.spawn(function()
     end)
     makeToggleRow("Play Left", false, function(s)
         if s then
-            if batAimbotEnabled then stopBatAimbot(); if toggleSetters["Lock"] then toggleSetters["Lock"](false) end end
+            if autoBatEnabled then stopBatAimbot(); if toggleSetters["Lock"] then toggleSetters["Lock"](false) end end
             if aprOn then stopAutoPlayRight(); if toggleSetters["Play Right"] then toggleSetters["Play Right"](false) end end
             if autoLOn then stopAutoL(); if toggleSetters["Auto Left"] then toggleSetters["Auto Left"](false) end end
             if autoROn then stopAutoR(); if toggleSetters["Auto Right"] then toggleSetters["Auto Right"](false) end end
@@ -2643,7 +2642,7 @@ task.spawn(function()
     end)
     makeToggleRow("Play Right", false, function(s)
         if s then
-            if batAimbotEnabled then stopBatAimbot(); if toggleSetters["Lock"] then toggleSetters["Lock"](false) end end
+            if autoBatEnabled then stopBatAimbot(); if toggleSetters["Lock"] then toggleSetters["Lock"](false) end end
             if aplOn then stopAutoPlayLeft(); if toggleSetters["Play Left"] then toggleSetters["Play Left"](false) end end
             if autoLOn then stopAutoL(); if toggleSetters["Auto Left"] then toggleSetters["Auto Left"](false) end end
             if autoROn then stopAutoR(); if toggleSetters["Auto Right"] then toggleSetters["Auto Right"](false) end end
@@ -2716,7 +2715,7 @@ task.spawn(function()
         btn.TextColor3 = ACCENT
         task.delay(1.5, function()
             btn.Text = "Save Config"
-            btn.TextColor3 = WHITE
+            btn.TextColor3 = TEXT_BRIGHT
         end)
     end)
 
@@ -2762,7 +2761,7 @@ task.spawn(function()
     ProgressLabel.Position = UDim2.new(0, 8, 0, 3)
     ProgressLabel.BackgroundTransparency = 1
     ProgressLabel.Text = "READY"
-    ProgressLabel.TextColor3 = WHITE
+    ProgressLabel.TextColor3 = TEXT_BRIGHT
     ProgressLabel.Font = Enum.Font.GothamBold
     ProgressLabel.TextSize = 10
     ProgressLabel.TextXAlignment = Enum.TextXAlignment.Left
@@ -2787,7 +2786,7 @@ task.spawn(function()
     ProgressBarFill.ZIndex = 3
     Instance.new("UICorner", ProgressBarFill).CornerRadius = UDim.new(1, 0)
 
-    -- Mobile Panel
+    -- Mobile Panel (same as original, with red accent)
     local PURPLE_ON = ACCENT
     local BLACK_OFF = Color3.fromRGB(8, 8, 8)
 
@@ -2861,7 +2860,7 @@ task.spawn(function()
         while panelTitle and panelTitle.Parent do
             t = t + 0.05
             local p = (math.sin(t * 2) + 1) / 2
-            panelTitle.TextColor3 = Color3.fromRGB(math.floor(156 - p * 56), math.floor(50 + p * 50), 255)
+            panelTitle.TextColor3 = Color3.fromRGB(math.floor(220 - p * 60), math.floor(60 + p * 20), math.floor(80 + p * 30))
             task.wait(0.05)
         end
     end)
@@ -2890,7 +2889,7 @@ task.spawn(function()
         Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 10)
 
         local bs = Instance.new("UIStroke", btn)
-        bs.Color = Color3.fromRGB(100, 30, 150)
+        bs.Color = DARK_RED
         bs.Thickness = 1
         bs.Transparency = 0.2
 
@@ -2926,7 +2925,7 @@ task.spawn(function()
 
     local function setPH(btn, bs, isOn)
         btn.BackgroundColor3 = isOn and PURPLE_ON or BLACK_OFF
-        bs.Color = isOn and ACCENT or Color3.fromRGB(100, 30, 150)
+        bs.Color = isOn and ACCENT or DARK_RED
         bs.Transparency = isOn and 0 or 0.2
     end
 
@@ -2937,7 +2936,7 @@ task.spawn(function()
     local btnLK, bsLK = makePBtn("LOCK", "", 7)
     local btnCS, bsCS = makePBtn("CARRY", "SPD", 8)
 
-    local pState = {AAL = false, AAR = false, LK = batAimbotEnabled, CS = slowDownEnabled}
+    local pState = {AAL = false, AAR = false, LK = autoBatEnabled, CS = slowDownEnabled}
     mobBtnRefs["AUTO L"] = {btn = btnAAL, bs = bsAAL, state = false}
     mobBtnRefs["AUTO R"] = {btn = btnAAR, bs = bsAAR, state = false}
     mobBtnRefs["PLAY L"] = {btn = btnAAL, bs = bsAAL, state = false}
@@ -2961,7 +2960,7 @@ task.spawn(function()
                     stopAutoR()
                     if toggleSetters["Auto Right"] then toggleSetters["Auto Right"](false) end
                 elseif k == "LK" then
-                    batAimbotEnabled = false
+                    autoBatEnabled = false
                     stopBatAimbot()
                     if toggleSetters["Lock"] then toggleSetters["Lock"](false) end
                 end
@@ -3018,7 +3017,7 @@ task.spawn(function()
         if ns then mutualOff("LK") end
         pState.LK = ns
         setPH(btnLK, bsLK, ns)
-        batAimbotEnabled = ns
+        autoBatEnabled = ns
         if toggleSetters["Lock"] then toggleSetters["Lock"](ns) end
         if ns then
             startBatAimbot()
@@ -3047,7 +3046,7 @@ task.spawn(function()
             if ns then mutualOff("LK") end
             pState.LK = ns
             setPH(btnLK, bsLK, ns)
-            batAimbotEnabled = ns
+            autoBatEnabled = ns
             if toggleSetters["Lock"] then toggleSetters["Lock"](ns) end
             if ns then
                 startBatAimbot()
@@ -3115,13 +3114,14 @@ task.spawn(function()
                 if toggleBtn then
                     if laggerActive then
                         toggleBtn.Text = "LAGGER ACTIVE ✓"
-                        toggleBtn.BackgroundColor3 = Color3.fromRGB(80, 30, 150)
+                        toggleBtn.BackgroundColor3 = DARK_RED
                     else
                         toggleBtn.Text = "TOGGLE LAGGER"
-                        toggleBtn.BackgroundColor3 = CARD
+                        toggleBtn.BackgroundColor3 = BG_CARD
                     end
                 end
                 if laggerActive then
+                    setLaggerSpeed(laggerNormalSpeed)
                     setupLaggerMonitor()
                     local char = player.Character
                     if char then
@@ -3129,17 +3129,18 @@ task.spawn(function()
                         if hum then hum.WalkSpeed = laggerNormalSpeed end
                     end
                 else
+                    cleanupLaggerMonitor()
                     local char = player.Character
                     if char then
                         local hum = char:FindFirstChildOfClass("Humanoid")
                         if hum then hum.WalkSpeed = 16 end
                     end
-                    cleanupLaggerMonitor()
                 end
                 saveConfig()
             else
                 laggerActive = not laggerActive
                 if laggerActive then
+                    setLaggerSpeed(laggerNormalSpeed)
                     setupLaggerMonitor()
                     local char = player.Character
                     if char then
@@ -3147,12 +3148,12 @@ task.spawn(function()
                         if hum then hum.WalkSpeed = laggerNormalSpeed end
                     end
                 else
+                    cleanupLaggerMonitor()
                     local char = player.Character
                     if char then
                         local hum = char:FindFirstChildOfClass("Humanoid")
                         if hum then hum.WalkSpeed = 16 end
                     end
-                    cleanupLaggerMonitor()
                 end
                 saveConfig()
             end
@@ -3165,12 +3166,12 @@ task.spawn(function()
     if spinBotEnabled then startSpin() end
     if antiRagdollEnabled then startAntiRagdoll() end
     if unwalkEnabled then startUnwalk() end
-    if batAimbotEnabled then startBatAimbot() end
+    if autoBatEnabled then startBatAimbot() end
     if autoStealEnabled then startAutoSteal() end
     if galaxyEnabled then startGalaxy() end
     if optimizerEnabled then enableOptimizer() end
     if goodAnimEnabled then task.spawn(startGoodAnim) end
     if medusaCounterEnabled then task.spawn(function() task.wait(1); setupMedusaCounter(player.Character) end) end
 
-    print("S7 SHUB loaded - Black & Purple Edition")
+    print("S7 SHUB loaded - Black & Red Edition")
 end)
