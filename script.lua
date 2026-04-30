@@ -1,7 +1,7 @@
 -- S7 Shub - Black & Purple Edition with Lock (Bat Aimbot) & Taunt Feature
 -- With Discord Tag Above Head
 -- Lock/Bat Aimbot: Smooth movement, purple line
--- Lagger: Speed 12 (änderbar)
+-- Lagger: Speed 12 (changeable)
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
