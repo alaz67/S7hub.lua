@@ -1,26 +1,24 @@
--- S7 Shub - Black & Purple Edition with Lock (Bat Aimbot) & Taunt Feature
--- With Discord Tag Above Head
--- Lock/Bat Aimbot: Smooth movement, purple line
--- Lagger: Speed 12 (changeable)
+-- S7 SHUB - Black & Purple Edition (Fixed)
+-- Features: Lock (Bat Aimbot), Auto Steal, Lagger (12 Speed), Taunt, Discord Tag
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
-local Lighting = game:GetService("Lighting")
-local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local CoreGui = game:GetService("CoreGui")
+local Workspace = game:GetService("Workspace")
+local Lighting = game:GetService("Lighting")
 local HttpService = game:GetService("HttpService")
+
 local player = Players.LocalPlayer
+local camera = workspace.CurrentCamera
 
 -- ==================== COLORS ====================
-local PURPLE = Color3.fromRGB(156, 50, 255)
-local DARK_PURPLE = Color3.fromRGB(80, 30, 150)
-local BG_DARK = Color3.fromRGB(10, 10, 15)
-local BG_CARD = Color3.fromRGB(22, 22, 30)
-local TEXT_BRIGHT = Color3.fromRGB(230, 230, 240)
-local TEXT_DIM = Color3.fromRGB(150, 150, 160)
+local ACCENT = Color3.fromRGB(156, 50, 255)  -- Purple
+local WHITE = Color3.fromRGB(240, 240, 255)
+local BG = Color3.fromRGB(10, 10, 15)
+local CARD = Color3.fromRGB(20, 20, 28)
+local OFF_CLR = Color3.fromRGB(35, 35, 48)
 
 -- ==================== LAGGER VARIABLES ====================
 local laggerActive = false
@@ -86,7 +84,6 @@ local lockedTarget = nil
 local AIMBOT_SPEED = 60
 local MELEE_OFFSET = 3
 local BAT_ENGAGE_RANGE = 5
-local purpleLine = nil
 
 local SlapList = {"Bat", "Slap", "Iron Slap", "Gold Slap", "Diamond Slap", "Emerald Slap", "Ruby Slap", "Dark Matter Slap", "Flame Slap", "Nuclear Slap", "Galaxy Slap", "Glitched Slap"}
 
@@ -146,13 +143,6 @@ end
 
 local function startBatAimbot()
     if aimbotConnection then return end
-    if not purpleLine then
-        purpleLine = Instance.new("SelectionBox")
-        purpleLine.Name = "AimbotLine"
-        purpleLine.Color3 = PURPLE
-        purpleLine.LineThickness = 0.1
-        purpleLine.Transparency = 0.3
-    end
     aimbotConnection = RunService.Heartbeat:Connect(function()
         if not batAimbotEnabled then return end
         local c = player.Character
@@ -164,18 +154,11 @@ local function startBatAimbot()
         if bat and bat.Parent ~= c then hum:EquipTool(bat) end
         local targetHRP, targetChar = getBestTarget(h)
         if targetHRP and targetChar then
-            if purpleLine then
-                purpleLine.Adornee = targetHRP
-                if not purpleLine.Parent then purpleLine.Parent = targetHRP end
-            end
             local targetVel = targetHRP.AssemblyLinearVelocity
             local speed = targetVel.Magnitude
             local predictTime = math.clamp(speed / 150, 0.05, 0.2)
             local predictedPos = targetHRP.Position + (targetVel * predictTime)
-            local dirToTarget = predictedPos - h.Position
-            local dist3D = dirToTarget.Magnitude
-            local targetStandPos = dist3D > 0 and (predictedPos - dirToTarget.Unit * MELEE_OFFSET) or predictedPos
-            local moveDir = targetStandPos - h.Position
+            local moveDir = predictedPos - h.Position
             local distToStand = moveDir.Magnitude
             if distToStand > 1.5 then
                 h.AssemblyLinearVelocity = moveDir.Unit * AIMBOT_SPEED
@@ -191,7 +174,6 @@ local function startBatAimbot()
             lockedTarget = nil
             if h then h.AssemblyLinearVelocity = Vector3.new(0, h.AssemblyLinearVelocity.Y, 0) end
             hum.AutoRotate = true
-            if purpleLine then purpleLine.Adornee = nil end
         end
     end)
 end
@@ -201,7 +183,6 @@ local function stopBatAimbot()
     lockedTarget = nil
     local hum = getHum()
     if hum then hum.AutoRotate = true end
-    if purpleLine then purpleLine.Adornee = nil end
 end
 
 -- ==================== AUTO STEAL ====================
@@ -367,7 +348,7 @@ local function stopAutoSteal()
     if ProgressPctLabel then ProgressPctLabel.Text = "" end
 end
 
--- Cache animals
+-- Cache animals periodically
 task.spawn(function()
     task.wait(2)
     while task.wait(5) do
@@ -401,18 +382,18 @@ local function createDiscordTag()
         billboard.Parent = char
         local frame = Instance.new("Frame", billboard)
         frame.Size = UDim2.new(1, 0, 1, 0)
-        frame.BackgroundColor3 = BG_DARK
+        frame.BackgroundColor3 = BG
         frame.BackgroundTransparency = 0.15
         frame.BorderSizePixel = 0
         Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 12)
         local stroke = Instance.new("UIStroke", frame)
-        stroke.Color = PURPLE
+        stroke.Color = ACCENT
         stroke.Thickness = 1
         local text = Instance.new("TextLabel", frame)
         text.Size = UDim2.new(1, 0, 1, 0)
         text.BackgroundTransparency = 1
         text.Text = "discord.gg/qMtvNQg68s"
-        text.TextColor3 = TEXT_BRIGHT
+        text.TextColor3 = WHITE
         text.Font = Enum.Font.GothamBold
         text.TextSize = 11
         text.TextScaled = true
@@ -432,16 +413,16 @@ tauntGui.ResetOnSpawn = false
 local tauntBtn = Instance.new("TextButton", tauntGui)
 tauntBtn.Size = UDim2.new(0, 70, 0, 35)
 tauntBtn.Position = UDim2.new(1, -80, 0.5, -50)
-tauntBtn.BackgroundColor3 = BG_CARD
+tauntBtn.BackgroundColor3 = CARD
 tauntBtn.Text = "TAUNT"
-tauntBtn.TextColor3 = TEXT_BRIGHT
+tauntBtn.TextColor3 = WHITE
 tauntBtn.Font = Enum.Font.GothamBlack
 tauntBtn.TextSize = 12
 tauntBtn.ZIndex = 20
 Instance.new("UICorner", tauntBtn).CornerRadius = UDim.new(0, 10)
 
 local tauntStroke = Instance.new("UIStroke", tauntBtn)
-tauntStroke.Color = PURPLE
+tauntStroke.Color = ACCENT
 tauntStroke.Thickness = 1.5
 
 local tauntDragging = false
@@ -474,13 +455,18 @@ local tauntCooldown = false
 local function sendTaunt()
     if tauntCooldown then return end
     tauntCooldown = true
-    local chatEvent = ReplicatedStorage:WaitForChild("DefaultChatSystemChatEvents"):WaitForChild("SayMessageRequest")
-    chatEvent:FireServer("/lol S7 Shub😂😂", "All")
-    task.wait(0.2)
-    chatEvent:FireServer("/lol S7 Shub😂😂", "All")
-    tauntBtn.BackgroundColor3 = DARK_PURPLE
+    local chatEvent = ReplicatedStorage:FindFirstChild("DefaultChatSystemChatEvents")
+    if chatEvent then
+        local sayMsg = chatEvent:FindFirstChild("SayMessageRequest")
+        if sayMsg then
+            sayMsg:FireServer("/lol S7 Shub😂😂", "All")
+            task.wait(0.2)
+            sayMsg:FireServer("/lol S7 Shub😂😂", "All")
+        end
+    end
+    tauntBtn.BackgroundColor3 = Color3.fromRGB(80, 30, 150)
     task.wait(3)
-    tauntBtn.BackgroundColor3 = BG_CARD
+    tauntBtn.BackgroundColor3 = CARD
     tauntCooldown = false
 end
 
@@ -489,7 +475,6 @@ tauntBtn.MouseButton1Click:Connect(sendTaunt)
 -- ==================== VARIABLES ====================
 NORMAL_SPEED = 60
 SLOW_SPEED = 29
-AIMBOT_SPEED = 60
 
 POS_L1 = Vector3.new(-476.48, -6.28, 92.73)
 POS_L2 = Vector3.new(-483.12, -4.95, 94.80)
@@ -1075,7 +1060,7 @@ local function createESP(plr)
     box.Name = "S7HubESP"
     box.Adornee = root
     box.Size = Vector3.new(4, 6, 2)
-    box.Color3 = PURPLE
+    box.Color3 = ACCENT
     box.Transparency = 0.45
     box.ZIndex = 10
     box.AlwaysOnTop = true
@@ -1095,7 +1080,7 @@ local function createESP(plr)
     lbl.Font = Enum.Font.GothamBold
     lbl.TextScaled = true
     lbl.TextStrokeTransparency = 0.5
-    lbl.TextStrokeColor3 = DARK_PURPLE
+    lbl.TextStrokeColor3 = Color3.fromRGB(100, 30, 150)
     lbl.Parent = bb
 end
 
@@ -1306,7 +1291,7 @@ local function startAutoL()
                 local info = mobBtnRefs["AUTO L"]
                 if info then
                     info.btn.BackgroundColor3 = Color3.fromRGB(8, 8, 8)
-                    info.bs.Color = DARK_PURPLE
+                    info.bs.Color = Color3.fromRGB(100, 30, 150)
                     info.bs.Transparency = 0.2
                     info.state = false
                 end
@@ -1348,7 +1333,7 @@ local function startAutoR()
                 local info = mobBtnRefs["AUTO R"]
                 if info then
                     info.btn.BackgroundColor3 = Color3.fromRGB(8, 8, 8)
-                    info.bs.Color = DARK_PURPLE
+                    info.bs.Color = Color3.fromRGB(100, 30, 150)
                     info.bs.Transparency = 0.2
                     info.state = false
                 end
@@ -1409,7 +1394,7 @@ local function startAutoPlayLeft()
                 local info = mobBtnRefs["PLAY L"]
                 if info then
                     info.btn.BackgroundColor3 = Color3.fromRGB(8, 8, 8)
-                    info.bs.Color = DARK_PURPLE
+                    info.bs.Color = Color3.fromRGB(100, 30, 150)
                     info.bs.Transparency = 0.2
                     info.state = false
                 end
@@ -1443,7 +1428,7 @@ local function startAutoPlayRight()
                 local info = mobBtnRefs["PLAY R"]
                 if info then
                     info.btn.BackgroundColor3 = Color3.fromRGB(8, 8, 8)
-                    info.bs.Color = DARK_PURPLE
+                    info.bs.Color = Color3.fromRGB(100, 30, 150)
                     info.bs.Transparency = 0.2
                     info.state = false
                 end
@@ -1500,9 +1485,9 @@ local function setupChar(c)
         gHrp = c:FindFirstChild("HumanoidRootPart")
         if not gHum or not gHrp then return end
     end
-    
+
     task.wait(0.3)
-    
+
     if galaxyEnabled then
         pcall(stopGalaxy)
         task.wait(0.1)
@@ -1536,7 +1521,7 @@ local function setupChar(c)
     if medusaCounterEnabled then
         pcall(setupMedusaCounter, c)
     end
-    
+
     if laggerActive then
         cleanupLaggerMonitor()
         setupLaggerMonitor()
@@ -1560,7 +1545,7 @@ local function makeDraggable(frame)
     local dragging = false
     local dragStart = nil
     local startPos = nil
-    
+
     frame.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             dragging = true
@@ -1568,14 +1553,14 @@ local function makeDraggable(frame)
             startPos = frame.Position
         end
     end)
-    
+
     UserInputService.InputChanged:Connect(function(input)
         if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
             local delta = input.Position - dragStart
             frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
         end
     end)
-    
+
     UserInputService.InputEnded:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             dragging = false
@@ -1588,137 +1573,137 @@ local laggerMinimized = false
 
 local function createLaggerGUI()
     if laggerPanel then return end
-    
+
     local screenGui = Instance.new("ScreenGui")
     screenGui.Name = "S7LaggerGUI"
     screenGui.ResetOnSpawn = false
     screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     screenGui.Parent = player:WaitForChild("PlayerGui")
-    
+
     local mainFrame = Instance.new("Frame")
     mainFrame.Name = "LaggerFrame"
     mainFrame.Size = UDim2.new(0, 235, 0, 130)
     mainFrame.Position = UDim2.new(1, -250, 0.45, 0)
-    mainFrame.BackgroundColor3 = BG_DARK
+    mainFrame.BackgroundColor3 = BG
     mainFrame.BackgroundTransparency = 0.1
     mainFrame.Active = true
     mainFrame.Parent = screenGui
-    
+
     local mainCorner = Instance.new("UICorner")
     mainCorner.CornerRadius = UDim.new(0, 14)
     mainCorner.Parent = mainFrame
-    
+
     local mainStroke = Instance.new("UIStroke")
-    mainStroke.Color = PURPLE
+    mainStroke.Color = ACCENT
     mainStroke.Thickness = 1.8
     mainStroke.Parent = mainFrame
-    
+
     local titleLabel = Instance.new("TextLabel")
     titleLabel.Text = "S7 LAGGER PANEL"
     titleLabel.Font = Enum.Font.LuckiestGuy
     titleLabel.TextSize = 12
-    titleLabel.TextColor3 = TEXT_BRIGHT
+    titleLabel.TextColor3 = WHITE
     titleLabel.TextXAlignment = Enum.TextXAlignment.Left
     titleLabel.Size = UDim2.new(1, -50, 0, 28)
     titleLabel.Position = UDim2.new(0, 14, 0, 8)
     titleLabel.BackgroundTransparency = 1
     titleLabel.Parent = mainFrame
-    
+
     local dropdownBtn = Instance.new("TextButton")
     dropdownBtn.Size = UDim2.new(0, 26, 0, 26)
     dropdownBtn.Position = UDim2.new(1, -38, 0, 9)
     dropdownBtn.BackgroundTransparency = 1
     dropdownBtn.Text = "▼"
-    dropdownBtn.TextColor3 = PURPLE
+    dropdownBtn.TextColor3 = ACCENT
     dropdownBtn.Font = Enum.Font.LuckiestGuy
     dropdownBtn.TextSize = 22
     dropdownBtn.Parent = mainFrame
-    
+
     local contentFrame = Instance.new("Frame")
     contentFrame.Name = "ContentFrame"
     contentFrame.Size = UDim2.new(1, -16, 1, -48)
     contentFrame.Position = UDim2.new(0, 8, 0, 40)
     contentFrame.BackgroundTransparency = 1
     contentFrame.Parent = mainFrame
-    
+
     local listLayout = Instance.new("UIListLayout")
     listLayout.Padding = UDim.new(0, 8)
     listLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
     listLayout.SortOrder = Enum.SortOrder.LayoutOrder
     listLayout.Parent = contentFrame
-    
+
     local contentPadding = Instance.new("UIPadding")
     contentPadding.PaddingTop = UDim.new(0, 6)
     contentPadding.PaddingBottom = UDim.new(0, 10)
     contentPadding.Parent = contentFrame
-    
+
     local laggerRow = Instance.new("Frame")
     laggerRow.Size = UDim2.new(1, -10, 0, 32)
     laggerRow.BackgroundTransparency = 1
     laggerRow.LayoutOrder = 1
     laggerRow.Parent = contentFrame
-    
+
     local laggerText = Instance.new("TextLabel")
     laggerText.Text = "LAGGER:"
     laggerText.Font = Enum.Font.LuckiestGuy
     laggerText.TextSize = 14
-    laggerText.TextColor3 = TEXT_BRIGHT
+    laggerText.TextColor3 = WHITE
     laggerText.TextXAlignment = Enum.TextXAlignment.Left
     laggerText.Size = UDim2.new(0.45, 0, 1, 0)
     laggerText.BackgroundTransparency = 1
     laggerText.Parent = laggerRow
-    
+
     local laggerStatusBox = Instance.new("TextLabel")
     laggerStatusBox.Size = UDim2.new(0.5, 0, 1, 0)
     laggerStatusBox.Position = UDim2.new(0.48, 0, 0, 0)
-    laggerStatusBox.BackgroundColor3 = BG_CARD
+    laggerStatusBox.BackgroundColor3 = CARD
     laggerStatusBox.BackgroundTransparency = 0.1
     laggerStatusBox.Text = "OFF"
     laggerStatusBox.TextColor3 = Color3.fromRGB(255, 80, 80)
     laggerStatusBox.TextSize = 13
     laggerStatusBox.Font = Enum.Font.LuckiestGuy
     laggerStatusBox.Parent = laggerRow
-    
+
     local statusCorner = Instance.new("UICorner")
     statusCorner.CornerRadius = UDim.new(0, 8)
     statusCorner.Parent = laggerStatusBox
-    
+
     local laggerToggleBtn = Instance.new("TextButton")
     laggerToggleBtn.Size = UDim2.new(1, -10, 0, 38)
-    laggerToggleBtn.BackgroundColor3 = BG_CARD
+    laggerToggleBtn.BackgroundColor3 = CARD
     laggerToggleBtn.Text = "TOGGLE LAGGER"
-    laggerToggleBtn.TextColor3 = TEXT_BRIGHT
+    laggerToggleBtn.TextColor3 = WHITE
     laggerToggleBtn.TextSize = 13
     laggerToggleBtn.Font = Enum.Font.LuckiestGuy
     laggerToggleBtn.LayoutOrder = 2
     laggerToggleBtn.Parent = contentFrame
-    
+
     local btnCorner = Instance.new("UICorner")
     btnCorner.CornerRadius = UDim.new(0, 10)
     btnCorner.Parent = laggerToggleBtn
-    
+
     local speedRow = Instance.new("Frame")
     speedRow.Size = UDim2.new(1, -10, 0, 32)
     speedRow.BackgroundTransparency = 1
     speedRow.LayoutOrder = 3
     speedRow.Parent = contentFrame
-    
+
     local speedText = Instance.new("TextLabel")
     speedText.Text = "LAGGER SPEED:"
     speedText.Font = Enum.Font.LuckiestGuy
     speedText.TextSize = 12
-    speedText.TextColor3 = TEXT_DIM
+    speedText.TextColor3 = Color3.fromRGB(180, 180, 190)
     speedText.TextXAlignment = Enum.TextXAlignment.Left
     speedText.Size = UDim2.new(0.55, 0, 1, 0)
     speedText.BackgroundTransparency = 1
     speedText.Parent = speedRow
-    
+
     local speedBox = Instance.new("TextBox")
     speedBox.Size = UDim2.new(0, 50, 0, 24)
     speedBox.Position = UDim2.new(0.65, 0, 0.5, -12)
-    speedBox.BackgroundColor3 = BG_CARD
+    speedBox.BackgroundColor3 = CARD
     speedBox.Text = tostring(laggerNormalSpeed)
-    speedBox.TextColor3 = PURPLE
+    speedBox.TextColor3 = ACCENT
     speedBox.Font = Enum.Font.GothamBold
     speedBox.TextSize = 12
     speedBox.TextXAlignment = Enum.TextXAlignment.Center
@@ -1726,7 +1711,7 @@ local function createLaggerGUI()
     speedBox.ClearTextOnFocus = false
     speedBox.Parent = speedRow
     Instance.new("UICorner", speedBox).CornerRadius = UDim.new(0, 6)
-    
+
     speedBox.FocusLost:Connect(function()
         local n = tonumber(speedBox.Text)
         if n and n >= 1 and n <= 100 then
@@ -1737,27 +1722,27 @@ local function createLaggerGUI()
             speedBox.Text = tostring(laggerNormalSpeed)
         end
     end)
-    
+
     local function updateLaggerBtnUI()
         if laggerActive then
             laggerToggleBtn.Text = "LAGGER ACTIVE ✓"
-            laggerToggleBtn.BackgroundColor3 = DARK_PURPLE
+            laggerToggleBtn.BackgroundColor3 = Color3.fromRGB(80, 30, 150)
             laggerToggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
             laggerStatusBox.Text = "ACTIVE"
-            laggerStatusBox.TextColor3 = PURPLE
+            laggerStatusBox.TextColor3 = ACCENT
         else
             laggerToggleBtn.Text = "TOGGLE LAGGER"
-            laggerToggleBtn.BackgroundColor3 = BG_CARD
-            laggerToggleBtn.TextColor3 = TEXT_BRIGHT
+            laggerToggleBtn.BackgroundColor3 = CARD
+            laggerToggleBtn.TextColor3 = WHITE
             laggerStatusBox.Text = "OFF"
             laggerStatusBox.TextColor3 = Color3.fromRGB(255, 80, 80)
         end
     end
-    
+
     laggerToggleBtn.MouseButton1Click:Connect(function()
         laggerActive = not laggerActive
         updateLaggerBtnUI()
-        
+
         if laggerActive then
             laggerNormalSpeed = tonumber(speedBox.Text) or 12
             setupLaggerMonitor()
@@ -1776,7 +1761,7 @@ local function createLaggerGUI()
         end
         saveConfig()
     end)
-    
+
     dropdownBtn.MouseButton1Click:Connect(function()
         laggerMinimized = not laggerMinimized
         if laggerMinimized then
@@ -1789,10 +1774,10 @@ local function createLaggerGUI()
             mainFrame:TweenSize(UDim2.new(0, 235, 0, 130), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.25, true)
         end
     end)
-    
+
     updateLaggerBtnUI()
     makeDraggable(mainFrame)
-    
+
     laggerPanel = screenGui
 end
 
@@ -1800,6 +1785,18 @@ local function destroyLaggerGUI()
     if laggerPanel then
         laggerPanel:Destroy()
         laggerPanel = nil
+    end
+end
+
+-- Helper function for setting lagger speed
+local function setLaggerSpeed(speed)
+    laggerNormalSpeed = speed
+    if laggerActive then
+        local char = player.Character
+        if char then
+            local hum = char:FindFirstChildOfClass("Humanoid")
+            if hum then hum.WalkSpeed = speed end
+        end
     end
 end
 
@@ -1844,7 +1841,7 @@ local function makeDesyncDraggable(frame)
     local dragging = false
     local dragStart = nil
     local startPos = nil
-    
+
     frame.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             dragging = true
@@ -1852,14 +1849,14 @@ local function makeDesyncDraggable(frame)
             startPos = frame.Position
         end
     end)
-    
+
     UserInputService.InputChanged:Connect(function(input)
         if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
             local delta = input.Position - dragStart
             frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
         end
     end)
-    
+
     UserInputService.InputEnded:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             dragging = false
@@ -1869,170 +1866,170 @@ end
 
 local function createDesyncGUI()
     if desyncPanel then return end
-    
+
     local screenGui = Instance.new("ScreenGui")
     screenGui.Name = "S7DesyncGUI"
     screenGui.ResetOnSpawn = false
     screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     screenGui.Parent = player:WaitForChild("PlayerGui")
-    
+
     local mainFrame = Instance.new("Frame")
     mainFrame.Name = "DesyncFrame"
     mainFrame.Size = UDim2.new(0, 235, 0, 178)
     mainFrame.Position = UDim2.new(1, -250, 0.32, 0)
-    mainFrame.BackgroundColor3 = BG_DARK
+    mainFrame.BackgroundColor3 = BG
     mainFrame.BackgroundTransparency = 0.1
     mainFrame.Active = true
     mainFrame.Parent = screenGui
-    
+
     local mainCorner = Instance.new("UICorner")
     mainCorner.CornerRadius = UDim.new(0, 14)
     mainCorner.Parent = mainFrame
-    
+
     local mainStroke = Instance.new("UIStroke")
-    mainStroke.Color = PURPLE
+    mainStroke.Color = ACCENT
     mainStroke.Thickness = 1.8
     mainStroke.Parent = mainFrame
-    
+
     local titleLabel = Instance.new("TextLabel")
     titleLabel.Text = "S7 DESYNC PANEL"
     titleLabel.Font = Enum.Font.LuckiestGuy
     titleLabel.TextSize = 12
-    titleLabel.TextColor3 = TEXT_BRIGHT
+    titleLabel.TextColor3 = WHITE
     titleLabel.TextXAlignment = Enum.TextXAlignment.Left
     titleLabel.Size = UDim2.new(1, -50, 0, 28)
     titleLabel.Position = UDim2.new(0, 14, 0, 8)
     titleLabel.BackgroundTransparency = 1
     titleLabel.Parent = mainFrame
-    
+
     local dropdownBtn = Instance.new("TextButton")
     dropdownBtn.Size = UDim2.new(0, 26, 0, 26)
     dropdownBtn.Position = UDim2.new(1, -38, 0, 9)
     dropdownBtn.BackgroundTransparency = 1
     dropdownBtn.Text = "▼"
-    dropdownBtn.TextColor3 = PURPLE
+    dropdownBtn.TextColor3 = ACCENT
     dropdownBtn.Font = Enum.Font.LuckiestGuy
     dropdownBtn.TextSize = 22
     dropdownBtn.Parent = mainFrame
-    
+
     local contentFrame = Instance.new("Frame")
     contentFrame.Name = "ContentFrame"
     contentFrame.Size = UDim2.new(1, -16, 1, -48)
     contentFrame.Position = UDim2.new(0, 8, 0, 40)
     contentFrame.BackgroundTransparency = 1
     contentFrame.Parent = mainFrame
-    
+
     local listLayout = Instance.new("UIListLayout")
     listLayout.Padding = UDim.new(0, 8)
     listLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
     listLayout.SortOrder = Enum.SortOrder.LayoutOrder
     listLayout.Parent = contentFrame
-    
+
     local contentPadding = Instance.new("UIPadding")
     contentPadding.PaddingTop = UDim.new(0, 6)
     contentPadding.PaddingBottom = UDim.new(0, 10)
     contentPadding.Parent = contentFrame
-    
+
     local desyncRow = Instance.new("Frame")
     desyncRow.Size = UDim2.new(1, -10, 0, 32)
     desyncRow.BackgroundTransparency = 1
     desyncRow.LayoutOrder = 1
     desyncRow.Parent = contentFrame
-    
+
     local desyncText = Instance.new("TextLabel")
     desyncText.Text = "DESYNC ACTIVE:"
     desyncText.Font = Enum.Font.LuckiestGuy
     desyncText.TextSize = 13
-    desyncText.TextColor3 = TEXT_BRIGHT
+    desyncText.TextColor3 = WHITE
     desyncText.TextXAlignment = Enum.TextXAlignment.Left
     desyncText.Size = UDim2.new(0.55, 0, 1, 0)
     desyncText.BackgroundTransparency = 1
     desyncText.Parent = desyncRow
-    
+
     desyncStatusBox = Instance.new("TextLabel")
     desyncStatusBox.Size = UDim2.new(0.4, 0, 1, 0)
     desyncStatusBox.Position = UDim2.new(0.58, 0, 0, 0)
-    desyncStatusBox.BackgroundColor3 = BG_CARD
+    desyncStatusBox.BackgroundColor3 = CARD
     desyncStatusBox.BackgroundTransparency = 0.1
     desyncStatusBox.Text = "OFF"
     desyncStatusBox.TextColor3 = Color3.fromRGB(255, 80, 80)
     desyncStatusBox.TextSize = 12
     desyncStatusBox.Font = Enum.Font.LuckiestGuy
     desyncStatusBox.Parent = desyncRow
-    
+
     local statusCorner = Instance.new("UICorner")
     statusCorner.CornerRadius = UDim.new(0, 8)
     statusCorner.Parent = desyncStatusBox
-    
+
     local desyncActiveBtn = Instance.new("TextButton")
     desyncActiveBtn.Size = UDim2.new(1, -10, 0, 38)
-    desyncActiveBtn.BackgroundColor3 = BG_CARD
+    desyncActiveBtn.BackgroundColor3 = CARD
     desyncActiveBtn.Text = "TOGGLE DESYNC"
-    desyncActiveBtn.TextColor3 = TEXT_BRIGHT
+    desyncActiveBtn.TextColor3 = WHITE
     desyncActiveBtn.TextSize = 13
     desyncActiveBtn.Font = Enum.Font.LuckiestGuy
     desyncActiveBtn.LayoutOrder = 2
     desyncActiveBtn.Parent = contentFrame
-    
+
     local btnCorner = Instance.new("UICorner")
     btnCorner.CornerRadius = UDim.new(0, 10)
     btnCorner.Parent = desyncActiveBtn
-    
+
     local noAnimBtn = Instance.new("TextButton")
     noAnimBtn.Size = UDim2.new(1, -10, 0, 38)
-    noAnimBtn.BackgroundColor3 = BG_CARD
+    noAnimBtn.BackgroundColor3 = CARD
     noAnimBtn.Text = "NO ANIM: OFF"
-    noAnimBtn.TextColor3 = TEXT_BRIGHT
+    noAnimBtn.TextColor3 = WHITE
     noAnimBtn.TextSize = 13
     noAnimBtn.Font = Enum.Font.LuckiestGuy
     noAnimBtn.LayoutOrder = 3
     noAnimBtn.Parent = contentFrame
-    
+
     local noAnimCorner = Instance.new("UICorner")
     noAnimCorner.CornerRadius = UDim.new(0, 10)
     noAnimCorner.Parent = noAnimBtn
-    
+
     local function updateDesyncBtnUI()
         if desyncActive then
             desyncActiveBtn.Text = "DESYNC ACTIVE ✓"
-            desyncActiveBtn.BackgroundColor3 = DARK_PURPLE
+            desyncActiveBtn.BackgroundColor3 = Color3.fromRGB(80, 30, 150)
             desyncActiveBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
             desyncStatusBox.Text = "ACTIVE"
-            desyncStatusBox.TextColor3 = PURPLE
+            desyncStatusBox.TextColor3 = ACCENT
         else
             desyncActiveBtn.Text = "TOGGLE DESYNC"
-            desyncActiveBtn.BackgroundColor3 = BG_CARD
-            desyncActiveBtn.TextColor3 = TEXT_BRIGHT
+            desyncActiveBtn.BackgroundColor3 = CARD
+            desyncActiveBtn.TextColor3 = WHITE
             desyncStatusBox.Text = "OFF"
             desyncStatusBox.TextColor3 = Color3.fromRGB(255, 80, 80)
         end
     end
-    
+
     local function updateNoAnimBtnUI()
         if noAnimActive then
             noAnimBtn.Text = "NO ANIM: ON ✓"
-            noAnimBtn.BackgroundColor3 = DARK_PURPLE
+            noAnimBtn.BackgroundColor3 = Color3.fromRGB(80, 30, 150)
             noAnimBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
         else
             noAnimBtn.Text = "NO ANIM: OFF"
-            noAnimBtn.BackgroundColor3 = BG_CARD
-            noAnimBtn.TextColor3 = TEXT_BRIGHT
+            noAnimBtn.BackgroundColor3 = CARD
+            noAnimBtn.TextColor3 = WHITE
         end
     end
-    
+
     desyncActiveBtn.MouseButton1Click:Connect(function()
         desyncActive = not desyncActive
         updateDesyncBtnUI()
         saveConfig()
     end)
-    
+
     noAnimBtn.MouseButton1Click:Connect(function()
         noAnimActive = not noAnimActive
         updateNoAnimBtnUI()
         toggleNoAnim(noAnimActive)
         saveConfig()
     end)
-    
+
     dropdownBtn.MouseButton1Click:Connect(function()
         desyncMinimized = not desyncMinimized
         if desyncMinimized then
@@ -2045,11 +2042,11 @@ local function createDesyncGUI()
             mainFrame:TweenSize(UDim2.new(0, 235, 0, 178), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.25, true)
         end
     end)
-    
+
     updateDesyncBtnUI()
     updateNoAnimBtnUI()
     makeDesyncDraggable(mainFrame)
-    
+
     desyncPanel = screenGui
 end
 
@@ -2075,13 +2072,12 @@ task.spawn(function()
     PBGui.IgnoreGuiInset = true
     PBGui.DisplayOrder = 5
 
-    -- Toggle Menu Button
     local toggleMenuBtn = Instance.new("TextButton", ScreenGui)
     toggleMenuBtn.Size = UDim2.new(0, 34, 0, 34)
     toggleMenuBtn.Position = UDim2.new(1, -142, 0, 10)
     toggleMenuBtn.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
     toggleMenuBtn.Text = "S7"
-    toggleMenuBtn.TextColor3 = PURPLE
+    toggleMenuBtn.TextColor3 = ACCENT
     toggleMenuBtn.Font = Enum.Font.GothamBlack
     toggleMenuBtn.TextSize = 13
     toggleMenuBtn.BackgroundTransparency = 0.1
@@ -2089,9 +2085,8 @@ task.spawn(function()
     Instance.new("UICorner", toggleMenuBtn).CornerRadius = UDim.new(0, 9)
     local tStroke = Instance.new("UIStroke", toggleMenuBtn)
     tStroke.Thickness = 1.5
-    tStroke.Color = PURPLE
+    tStroke.Color = ACCENT
 
-    -- Lock Button (for drag lock)
     local lockBtn = Instance.new("TextButton", ScreenGui)
     lockBtn.Size = UDim2.new(0, 34, 0, 34)
     lockBtn.Position = UDim2.new(1, -180, 0, 10)
@@ -2103,29 +2098,27 @@ task.spawn(function()
     lockBtn.BackgroundTransparency = 0.1
     lockBtn.ZIndex = 10
     Instance.new("UICorner", lockBtn).CornerRadius = UDim.new(0, 9)
-    Instance.new("UIStroke", lockBtn).Color = DARK_PURPLE
-    
+    Instance.new("UIStroke", lockBtn).Color = Color3.fromRGB(100, 30, 150)
+
     local dragLocked = false
     lockBtn.MouseButton1Click:Connect(function()
         dragLocked = not dragLocked
         lockBtn.Text = dragLocked and "🔒" or "🔓"
-        lockBtn.TextColor3 = dragLocked and PURPLE or Color3.fromRGB(200, 200, 200)
+        lockBtn.TextColor3 = dragLocked and ACCENT or Color3.fromRGB(200, 200, 200)
     end)
 
-    -- Main Frame
     local mainFrame = Instance.new("Frame", ScreenGui)
     mainFrame.Size = UDim2.new(0, 240, 0, 480)
     mainFrame.Position = UDim2.new(0, 10, 0, 55)
-    mainFrame.BackgroundColor3 = BG_DARK
+    mainFrame.BackgroundColor3 = BG
     mainFrame.BackgroundTransparency = 0
     mainFrame.BorderSizePixel = 0
     mainFrame.Active = true
     Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 14)
     local mfStroke = Instance.new("UIStroke", mainFrame)
     mfStroke.Thickness = 1.5
-    mfStroke.Color = PURPLE
+    mfStroke.Color = ACCENT
 
-    -- Logo
     local guiLogo = Instance.new("ImageLabel", mainFrame)
     guiLogo.Size = UDim2.new(0, 28, 0, 28)
     guiLogo.Position = UDim2.new(0, 5, 0, 5)
@@ -2133,29 +2126,27 @@ task.spawn(function()
     guiLogo.Image = "rbxassetid://6031094876"
     guiLogo.ZIndex = 15
 
-    -- Left drag bar
     local leftDrag = Instance.new("Frame", mainFrame)
     leftDrag.Size = UDim2.new(0, 6, 1, -28)
     leftDrag.Position = UDim2.new(0, 0, 0, 14)
-    leftDrag.BackgroundColor3 = DARK_PURPLE
+    leftDrag.BackgroundColor3 = Color3.fromRGB(100, 30, 150)
     leftDrag.BorderSizePixel = 0
     leftDrag.ZIndex = 10
     leftDrag.Active = true
     Instance.new("UICorner", leftDrag).CornerRadius = UDim.new(0, 6)
-    
+
     local stripPip = Instance.new("Frame", leftDrag)
     stripPip.Size = UDim2.new(0, 2, 0, 18)
     stripPip.Position = UDim2.new(0.5, -1, 0.5, -9)
-    stripPip.BackgroundColor3 = PURPLE
+    stripPip.BackgroundColor3 = ACCENT
     stripPip.BorderSizePixel = 0
     stripPip.ZIndex = 11
     Instance.new("UICorner", stripPip).CornerRadius = UDim.new(1, 0)
 
-    -- Dragging for left bar
     local stripDragging = false
     local stripDragStart = nil
     local stripStartPos = nil
-    
+
     leftDrag.InputBegan:Connect(function(inp)
         if dragLocked then return end
         if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
@@ -2164,7 +2155,7 @@ task.spawn(function()
             stripStartPos = Vector2.new(mainFrame.Position.X.Offset, mainFrame.Position.Y.Offset)
         end
     end)
-    
+
     UserInputService.InputEnded:Connect(function(inp)
         if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
             stripDragging = false
@@ -2172,7 +2163,7 @@ task.spawn(function()
             stripStartPos = nil
         end
     end)
-    
+
     UserInputService.InputChanged:Connect(function(inp)
         if dragLocked or not stripDragging or not stripDragStart then return end
         if inp.UserInputType == Enum.UserInputType.MouseMovement or inp.UserInputType == Enum.UserInputType.Touch then
@@ -2182,7 +2173,6 @@ task.spawn(function()
         end
     end)
 
-    -- Title bar
     local titleBar = Instance.new("Frame", mainFrame)
     titleBar.Size = UDim2.new(1, -6, 0, 20)
     titleBar.Position = UDim2.new(0, 6, 0, 0)
@@ -2191,15 +2181,14 @@ task.spawn(function()
     titleBar.ZIndex = 3
     titleBar.Active = true
     Instance.new("UICorner", titleBar).CornerRadius = UDim.new(0, 14)
-    
-    -- Title fix
+
     local tbFix = Instance.new("Frame", titleBar)
     tbFix.Size = UDim2.new(0, 14, 0.6, 0)
     tbFix.Position = UDim2.new(0, 0, 0.4, 0)
     tbFix.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
     tbFix.BorderSizePixel = 0
     tbFix.ZIndex = 3
-    
+
     local tbFix2 = Instance.new("Frame", titleBar)
     tbFix2.Size = UDim2.new(1, 0, 0.5, 0)
     tbFix2.Position = UDim2.new(0, 0, 0.5, 0)
@@ -2207,11 +2196,10 @@ task.spawn(function()
     tbFix2.BorderSizePixel = 0
     tbFix2.ZIndex = 3
 
-    -- Dragging for title bar
     local tbDragging = false
     local tbDragStart = nil
     local tbStartPos = nil
-    
+
     titleBar.InputBegan:Connect(function(inp)
         if dragLocked then return end
         if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
@@ -2220,7 +2208,7 @@ task.spawn(function()
             tbStartPos = Vector2.new(mainFrame.Position.X.Offset, mainFrame.Position.Y.Offset)
         end
     end)
-    
+
     UserInputService.InputEnded:Connect(function(inp)
         if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
             tbDragging = false
@@ -2228,7 +2216,7 @@ task.spawn(function()
             tbStartPos = nil
         end
     end)
-    
+
     UserInputService.InputChanged:Connect(function(inp)
         if dragLocked or not tbDragging or not tbDragStart then return end
         if inp.UserInputType == Enum.UserInputType.MouseMovement or inp.UserInputType == Enum.UserInputType.Touch then
@@ -2238,7 +2226,6 @@ task.spawn(function()
         end
     end)
 
-    -- Title label
     local titleLbl = Instance.new("TextLabel", titleBar)
     titleLbl.Size = UDim2.new(0, 80, 1, 0)
     titleLbl.Position = UDim2.new(0, 35, 0, 0)
@@ -2246,11 +2233,10 @@ task.spawn(function()
     titleLbl.Text = "S7 SHUB"
     titleLbl.Font = Enum.Font.LuckiestGuy
     titleLbl.TextSize = 11
-    titleLbl.TextColor3 = PURPLE
+    titleLbl.TextColor3 = ACCENT
     titleLbl.TextXAlignment = Enum.TextXAlignment.Left
     titleLbl.ZIndex = 4
-    
-    -- FPS Label
+
     local FPSLbl = Instance.new("TextLabel", titleBar)
     FPSLbl.Size = UDim2.new(0, 44, 1, 0)
     FPSLbl.Position = UDim2.new(1, -62, 0, 0)
@@ -2258,10 +2244,10 @@ task.spawn(function()
     FPSLbl.Text = "0 FPS"
     FPSLbl.Font = Enum.Font.GothamBold
     FPSLbl.TextSize = 8
-    FPSLbl.TextColor3 = TEXT_BRIGHT
+    FPSLbl.TextColor3 = WHITE
     FPSLbl.TextXAlignment = Enum.TextXAlignment.Right
     FPSLbl.ZIndex = 5
-    
+
     local fc, lft = 0, tick()
     RunService.RenderStepped:Connect(function()
         fc = fc + 1
@@ -2272,19 +2258,18 @@ task.spawn(function()
             lft = ct
         end
     end)
-    
-    -- Minimize button
+
     local minBtn = Instance.new("TextButton", titleBar)
     minBtn.Size = UDim2.new(0, 15, 0, 12)
     minBtn.Position = UDim2.new(1, -18, 0.5, -6)
-    minBtn.BackgroundColor3 = DARK_PURPLE
+    minBtn.BackgroundColor3 = Color3.fromRGB(100, 30, 150)
     minBtn.Text = "−"
-    minBtn.TextColor3 = TEXT_BRIGHT
+    minBtn.TextColor3 = WHITE
     minBtn.Font = Enum.Font.GothamBold
     minBtn.TextSize = 10
     minBtn.ZIndex = 5
     Instance.new("UICorner", minBtn).CornerRadius = UDim.new(0, 4)
-    
+
     local guiVisible = true
     local function toggleVis()
         guiVisible = not guiVisible
@@ -2293,25 +2278,23 @@ task.spawn(function()
     minBtn.MouseButton1Click:Connect(toggleVis)
     toggleMenuBtn.MouseButton1Click:Connect(toggleVis)
 
-    -- Separator
     local sep = Instance.new("Frame", mainFrame)
     sep.Size = UDim2.new(1, -6, 0, 1)
     sep.Position = UDim2.new(0, 6, 0, 20)
-    sep.BackgroundColor3 = PURPLE
+    sep.BackgroundColor3 = ACCENT
     sep.BorderSizePixel = 0
     sep.ZIndex = 3
 
-    -- Scroll frame
     local scroll = Instance.new("ScrollingFrame", mainFrame)
     scroll.Size = UDim2.new(1, -8, 1, -24)
     scroll.Position = UDim2.new(0, 7, 0, 22)
     scroll.BackgroundTransparency = 1
     scroll.ScrollBarThickness = 2
-    scroll.ScrollBarImageColor3 = PURPLE
+    scroll.ScrollBarImageColor3 = ACCENT
     scroll.BorderSizePixel = 0
     scroll.ZIndex = 2
     scroll.CanvasSize = UDim2.new(0, 0, 0, 0)
-    
+
     local ll = Instance.new("UIListLayout", scroll)
     ll.Padding = UDim.new(0, 0)
     ll.SortOrder = Enum.SortOrder.LayoutOrder
@@ -2325,7 +2308,6 @@ task.spawn(function()
         return lo
     end
 
-    -- Helper functions for GUI elements
     local function makeSectionHeader(text)
         local h = Instance.new("Frame", scroll)
         h.Size = UDim2.new(1, 0, 0, 16)
@@ -2338,7 +2320,7 @@ task.spawn(function()
         l.Text = text
         l.Font = Enum.Font.GothamBlack
         l.TextSize = 8
-        l.TextColor3 = PURPLE
+        l.TextColor3 = ACCENT
         l.TextXAlignment = Enum.TextXAlignment.Left
         l.ZIndex = 3
     end
@@ -2350,14 +2332,14 @@ task.spawn(function()
         row.BorderSizePixel = 0
         row.LayoutOrder = nlo()
         row.ZIndex = 2
-        
+
         local div = Instance.new("Frame", row)
         div.Size = UDim2.new(1, -6, 0, 1)
         div.Position = UDim2.new(0, 3, 1, -1)
-        div.BackgroundColor3 = DARK_PURPLE
+        div.BackgroundColor3 = Color3.fromRGB(100, 30, 150)
         div.BorderSizePixel = 0
         div.ZIndex = 3
-        
+
         local lbl = Instance.new("TextLabel", row)
         lbl.Size = UDim2.new(0.62, 0, 1, 0)
         lbl.Position = UDim2.new(0, 8, 0, 0)
@@ -2365,37 +2347,37 @@ task.spawn(function()
         lbl.Text = label
         lbl.Font = Enum.Font.GothamSemibold
         lbl.TextSize = 10
-        lbl.TextColor3 = TEXT_BRIGHT
+        lbl.TextColor3 = WHITE
         lbl.TextXAlignment = Enum.TextXAlignment.Left
         lbl.ZIndex = 3
-        
+
         local tBg = Instance.new("Frame", row)
         tBg.Size = UDim2.new(0, 28, 0, 15)
         tBg.Position = UDim2.new(1, -32, 0.5, -7)
-        tBg.BackgroundColor3 = defaultState and PURPLE or Color3.fromRGB(45, 45, 58)
+        tBg.BackgroundColor3 = defaultState and ACCENT or Color3.fromRGB(45, 45, 58)
         tBg.ZIndex = 3
         Instance.new("UICorner", tBg).CornerRadius = UDim.new(1, 0)
-        
+
         local tCirc = Instance.new("Frame", tBg)
         tCirc.Size = UDim2.new(0, 10, 0, 10)
         tCirc.Position = defaultState and UDim2.new(1, -12, 0.5, -5) or UDim2.new(0, 2, 0.5, -5)
         tCirc.BackgroundColor3 = Color3.new(1, 1, 1)
         tCirc.ZIndex = 4
         Instance.new("UICorner", tCirc).CornerRadius = UDim.new(1, 0)
-        
+
         local click = Instance.new("TextButton", row)
         click.Size = UDim2.new(1, 0, 1, 0)
         click.BackgroundTransparency = 1
         click.Text = ""
         click.ZIndex = 5
-        
+
         local isOn = defaultState
         local function setVis(state)
             isOn = state
-            tBg.BackgroundColor3 = isOn and PURPLE or Color3.fromRGB(45, 45, 58)
+            tBg.BackgroundColor3 = isOn and ACCENT or Color3.fromRGB(45, 45, 58)
             tCirc.Position = isOn and UDim2.new(1, -12, 0.5, -5) or UDim2.new(0, 2, 0.5, -5)
         end
-        
+
         toggleSetters[label] = setVis
         click.MouseButton1Click:Connect(function()
             isOn = not isOn
@@ -2412,14 +2394,14 @@ task.spawn(function()
         row.BorderSizePixel = 0
         row.LayoutOrder = nlo()
         row.ZIndex = 2
-        
+
         local div = Instance.new("Frame", row)
         div.Size = UDim2.new(1, -6, 0, 1)
         div.Position = UDim2.new(0, 3, 1, -1)
-        div.BackgroundColor3 = DARK_PURPLE
+        div.BackgroundColor3 = Color3.fromRGB(100, 30, 150)
         div.BorderSizePixel = 0
         div.ZIndex = 3
-        
+
         local lbl = Instance.new("TextLabel", row)
         lbl.Size = UDim2.new(0.6, 0, 1, 0)
         lbl.Position = UDim2.new(0, 8, 0, 0)
@@ -2427,25 +2409,25 @@ task.spawn(function()
         lbl.Text = label
         lbl.Font = Enum.Font.GothamSemibold
         lbl.TextSize = 10
-        lbl.TextColor3 = TEXT_BRIGHT
+        lbl.TextColor3 = WHITE
         lbl.TextXAlignment = Enum.TextXAlignment.Left
         lbl.ZIndex = 3
-        
+
         local vb = Instance.new("TextBox", row)
         vb.Size = UDim2.new(0, 44, 0, 16)
         vb.Position = UDim2.new(1, -48, 0.5, -8)
         vb.BackgroundColor3 = Color3.fromRGB(22, 22, 32)
         vb.Text = tostring(defaultVal)
-        vb.TextColor3 = PURPLE
+        vb.TextColor3 = ACCENT
         vb.Font = Enum.Font.GothamBold
         vb.TextSize = 10
         vb.ClearTextOnFocus = false
         vb.ZIndex = 4
         Instance.new("UICorner", vb).CornerRadius = UDim.new(0, 5)
-        
+
         local vbStroke = Instance.new("UIStroke", vb)
-        vbStroke.Color = DARK_PURPLE
-        
+        vbStroke.Color = Color3.fromRGB(100, 30, 150)
+
         vb.FocusLost:Connect(function()
             local n = tonumber(vb.Text)
             if n then
@@ -2464,28 +2446,28 @@ task.spawn(function()
         row.BorderSizePixel = 0
         row.LayoutOrder = nlo()
         row.ZIndex = 2
-        
+
         local div = Instance.new("Frame", row)
         div.Size = UDim2.new(1, -6, 0, 1)
         div.Position = UDim2.new(0, 3, 1, -1)
-        div.BackgroundColor3 = DARK_PURPLE
+        div.BackgroundColor3 = Color3.fromRGB(100, 30, 150)
         div.BorderSizePixel = 0
         div.ZIndex = 3
-        
+
         local btn = Instance.new("TextButton", row)
         btn.Size = UDim2.new(1, -12, 0, 17)
         btn.Position = UDim2.new(0, 6, 0.5, -8)
         btn.BackgroundColor3 = Color3.fromRGB(28, 28, 38)
         btn.Text = text
-        btn.TextColor3 = TEXT_BRIGHT
+        btn.TextColor3 = WHITE
         btn.Font = Enum.Font.GothamBold
         btn.TextSize = 10
         btn.ZIndex = 3
         Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 7)
-        
+
         local btnStroke = Instance.new("UIStroke", btn)
-        btnStroke.Color = DARK_PURPLE
-        
+        btnStroke.Color = Color3.fromRGB(100, 30, 150)
+
         btn.MouseButton1Click:Connect(function()
             if cb then cb(btn) end
         end)
@@ -2499,14 +2481,14 @@ task.spawn(function()
         row.BorderSizePixel = 0
         row.LayoutOrder = nlo()
         row.ZIndex = 2
-        
+
         local div = Instance.new("Frame", row)
         div.Size = UDim2.new(1, -6, 0, 1)
         div.Position = UDim2.new(0, 3, 1, -1)
-        div.BackgroundColor3 = DARK_PURPLE
+        div.BackgroundColor3 = Color3.fromRGB(100, 30, 150)
         div.BorderSizePixel = 0
         div.ZIndex = 3
-        
+
         local lbl = Instance.new("TextLabel", row)
         lbl.Size = UDim2.new(0.55, 0, 1, 0)
         lbl.Position = UDim2.new(0, 8, 0, 0)
@@ -2514,24 +2496,24 @@ task.spawn(function()
         lbl.Text = label
         lbl.Font = Enum.Font.GothamSemibold
         lbl.TextSize = 9
-        lbl.TextColor3 = TEXT_DIM
+        lbl.TextColor3 = Color3.fromRGB(150, 150, 160)
         lbl.TextXAlignment = Enum.TextXAlignment.Left
         lbl.ZIndex = 3
-        
+
         local kbBtn = Instance.new("TextButton", row)
         kbBtn.Size = UDim2.new(0, 60, 0, 16)
         kbBtn.Position = UDim2.new(1, -64, 0.5, -8)
         kbBtn.BackgroundColor3 = Color3.fromRGB(22, 22, 32)
         kbBtn.Text = (Keybinds[kbKey] and Keybinds[kbKey] ~= Enum.KeyCode.Unknown) and Keybinds[kbKey].Name or "—"
-        kbBtn.TextColor3 = PURPLE
+        kbBtn.TextColor3 = ACCENT
         kbBtn.Font = Enum.Font.GothamBold
         kbBtn.TextSize = 8
         kbBtn.ZIndex = 4
         Instance.new("UICorner", kbBtn).CornerRadius = UDim.new(0, 4)
-        
+
         local kbStroke = Instance.new("UIStroke", kbBtn)
-        kbStroke.Color = DARK_PURPLE
-        
+        kbStroke.Color = Color3.fromRGB(100, 30, 150)
+
         local waiting = false
         kbBtn.MouseButton1Click:Connect(function()
             if waiting then return end
@@ -2586,7 +2568,7 @@ task.spawn(function()
         slowDownEnabled = s
         saveConfig()
     end)
-    
+
     local normalSpeedBox = makeValueRow("Normal Speed", NORMAL_SPEED, function(v)
         NORMAL_SPEED = math.clamp(v, 1, 300)
         saveConfig()
@@ -2619,7 +2601,7 @@ task.spawn(function()
         STEAL_RADIUS = math.clamp(v, 1, 300)
         saveConfig()
     end)
-    
+
     makeToggleRow("Auto Left", false, function(s)
         if s then
             if batAimbotEnabled then stopBatAimbot(); if toggleSetters["Lock"] then toggleSetters["Lock"](false) end end
@@ -2731,10 +2713,10 @@ task.spawn(function()
     makeActionBtn("Save Config", function(btn)
         saveConfig()
         btn.Text = "Saved!"
-        btn.TextColor3 = PURPLE
+        btn.TextColor3 = ACCENT
         task.delay(1.5, function()
             btn.Text = "Save Config"
-            btn.TextColor3 = TEXT_BRIGHT
+            btn.TextColor3 = WHITE
         end)
     end)
 
@@ -2759,37 +2741,37 @@ task.spawn(function()
     PBC.BorderSizePixel = 0
     PBC.Active = true
     Instance.new("UICorner", PBC).CornerRadius = UDim.new(0, 11)
-    
+
     local pbs = Instance.new("UIStroke", PBC)
-    pbs.Color = PURPLE
+    pbs.Color = ACCENT
     pbs.Thickness = 1.5
-    
+
     local cashHubText = Instance.new("TextLabel", PBC)
     cashHubText.Size = UDim2.new(0.38, 0, 0.55, 0)
     cashHubText.Position = UDim2.new(0.62, 0, 0, 3)
     cashHubText.BackgroundTransparency = 1
     cashHubText.Text = "S7 SHUB"
-    cashHubText.TextColor3 = PURPLE
+    cashHubText.TextColor3 = ACCENT
     cashHubText.Font = Enum.Font.GothamBlack
     cashHubText.TextSize = 11
     cashHubText.TextXAlignment = Enum.TextXAlignment.Right
     cashHubText.ZIndex = 3
-    
+
     ProgressLabel = Instance.new("TextLabel", PBC)
     ProgressLabel.Size = UDim2.new(0.55, 0, 0.55, 0)
     ProgressLabel.Position = UDim2.new(0, 8, 0, 3)
     ProgressLabel.BackgroundTransparency = 1
     ProgressLabel.Text = "READY"
-    ProgressLabel.TextColor3 = TEXT_BRIGHT
+    ProgressLabel.TextColor3 = WHITE
     ProgressLabel.Font = Enum.Font.GothamBold
     ProgressLabel.TextSize = 10
     ProgressLabel.TextXAlignment = Enum.TextXAlignment.Left
     ProgressLabel.ZIndex = 3
-    
+
     ProgressPctLabel = Instance.new("TextLabel", PBC)
     ProgressPctLabel.Size = UDim2.new(0, 0, 0, 0)
     ProgressPctLabel.Visible = false
-    
+
     local pt = Instance.new("Frame", PBC)
     pt.Size = UDim2.new(0.9, 0, 0, 5)
     pt.Position = UDim2.new(0.05, 0, 1, -10)
@@ -2797,18 +2779,18 @@ task.spawn(function()
     pt.BorderSizePixel = 0
     pt.ZIndex = 2
     Instance.new("UICorner", pt).CornerRadius = UDim.new(1, 0)
-    
+
     ProgressBarFill = Instance.new("Frame", pt)
     ProgressBarFill.Size = UDim2.new(0, 0, 1, 0)
-    ProgressBarFill.BackgroundColor3 = PURPLE
+    ProgressBarFill.BackgroundColor3 = ACCENT
     ProgressBarFill.BorderSizePixel = 0
     ProgressBarFill.ZIndex = 3
     Instance.new("UICorner", ProgressBarFill).CornerRadius = UDim.new(1, 0)
 
     -- Mobile Panel
-    local PURPLE_ON = PURPLE
+    local PURPLE_ON = ACCENT
     local BLACK_OFF = Color3.fromRGB(8, 8, 8)
-    
+
     local panelGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
     panelGui.Name = "S7Hub_MobilePanel"
     panelGui.ResetOnSpawn = false
@@ -2826,16 +2808,16 @@ task.spawn(function()
     panelFrame.Active = true
     panelFrame.ZIndex = 20
     Instance.new("UICorner", panelFrame).CornerRadius = UDim.new(0, 14)
-    
+
     local psk = Instance.new("UIStroke", panelFrame)
-    psk.Color = PURPLE
+    psk.Color = ACCENT
     psk.Thickness = 1.2
     psk.Transparency = 0.3
 
     local pDragging = false
     local pDragStart = nil
     local pFrameStart = nil
-    
+
     panelFrame.InputBegan:Connect(function(inp)
         if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
             pDragging = true
@@ -2843,7 +2825,7 @@ task.spawn(function()
             pFrameStart = Vector2.new(panelFrame.Position.X.Offset, panelFrame.Position.Y.Offset)
         end
     end)
-    
+
     UserInputService.InputEnded:Connect(function(inp)
         if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
             pDragging = false
@@ -2851,7 +2833,7 @@ task.spawn(function()
             pFrameStart = nil
         end
     end)
-    
+
     UserInputService.InputChanged:Connect(function(inp)
         if not pDragging or not pDragStart then return end
         if inp.UserInputType == Enum.UserInputType.MouseMovement or inp.UserInputType == Enum.UserInputType.Touch then
@@ -2870,10 +2852,10 @@ task.spawn(function()
     panelTitle.Text = "S7 SHUB"
     panelTitle.Font = Enum.Font.LuckiestGuy
     panelTitle.TextSize = 8
-    panelTitle.TextColor3 = PURPLE
+    panelTitle.TextColor3 = ACCENT
     panelTitle.TextXAlignment = Enum.TextXAlignment.Center
     panelTitle.ZIndex = 26
-    
+
     task.spawn(function()
         local t = 0
         while panelTitle and panelTitle.Parent do
@@ -2889,7 +2871,7 @@ task.spawn(function()
     btnGrid.Position = UDim2.new(0, 4, 0, 15)
     btnGrid.BackgroundTransparency = 1
     btnGrid.ZIndex = 21
-    
+
     local gl = Instance.new("UIGridLayout", btnGrid)
     gl.CellSize = UDim2.new(0.5, -3, 0, 50)
     gl.CellPadding = UDim2.new(0, 5, 0, 4)
@@ -2906,12 +2888,12 @@ task.spawn(function()
         btn.Text = ""
         btn.ZIndex = 22
         Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 10)
-        
+
         local bs = Instance.new("UIStroke", btn)
-        bs.Color = DARK_PURPLE
+        bs.Color = Color3.fromRGB(100, 30, 150)
         bs.Thickness = 1
         bs.Transparency = 0.2
-        
+
         local t1 = Instance.new("TextLabel", btn)
         t1.Size = UDim2.new(1, 0, 0.52, 0)
         t1.Position = UDim2.new(0, 0, 0.06, 0)
@@ -2922,7 +2904,7 @@ task.spawn(function()
         t1.TextSize = 10
         t1.TextXAlignment = Enum.TextXAlignment.Center
         t1.ZIndex = 23
-        
+
         local t2 = Instance.new("TextLabel", btn)
         t2.Size = UDim2.new(1, 0, 0.44, 0)
         t2.Position = UDim2.new(0, 0, 0.52, 0)
@@ -2933,7 +2915,7 @@ task.spawn(function()
         t2.TextSize = 10
         t2.TextXAlignment = Enum.TextXAlignment.Center
         t2.ZIndex = 23
-        
+
         btn.InputBegan:Connect(function(inp)
             if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
                 pDragging = false
@@ -2944,7 +2926,7 @@ task.spawn(function()
 
     local function setPH(btn, bs, isOn)
         btn.BackgroundColor3 = isOn and PURPLE_ON or BLACK_OFF
-        bs.Color = isOn and PURPLE or DARK_PURPLE
+        bs.Color = isOn and ACCENT or Color3.fromRGB(100, 30, 150)
         bs.Transparency = isOn and 0 or 0.2
     end
 
@@ -2960,7 +2942,7 @@ task.spawn(function()
     mobBtnRefs["AUTO R"] = {btn = btnAAR, bs = bsAAR, state = false}
     mobBtnRefs["PLAY L"] = {btn = btnAAL, bs = bsAAL, state = false}
     mobBtnRefs["PLAY R"] = {btn = btnAAR, bs = bsAAR, state = false}
-    
+
     if pState.LK then setPH(btnLK, bsLK, true) end
     if pState.CS then setPH(btnCS, bsCS, true) end
 
@@ -3059,7 +3041,7 @@ task.spawn(function()
         if processed then return end
         local kc = input.KeyCode
         if kc == Enum.KeyCode.Unknown then return end
-        
+
         if kc == Keybinds.BatAimbot then
             local ns = not pState.LK
             if ns then mutualOff("LK") end
@@ -3129,15 +3111,14 @@ task.spawn(function()
         elseif kc == Keybinds.Lagger then
             if laggerPanel then
                 laggerActive = not laggerActive
-                -- Update button text
                 local toggleBtn = laggerPanel:FindFirstChild("LaggerFrame") and laggerPanel.LaggerFrame:FindFirstChild("ContentFrame") and laggerPanel.LaggerFrame.ContentFrame:FindFirstChild("TOGGLE LAGGER")
                 if toggleBtn then
                     if laggerActive then
                         toggleBtn.Text = "LAGGER ACTIVE ✓"
-                        toggleBtn.BackgroundColor3 = DARK_PURPLE
+                        toggleBtn.BackgroundColor3 = Color3.fromRGB(80, 30, 150)
                     else
                         toggleBtn.Text = "TOGGLE LAGGER"
-                        toggleBtn.BackgroundColor3 = BG_CARD
+                        toggleBtn.BackgroundColor3 = CARD
                     end
                 end
                 if laggerActive then
