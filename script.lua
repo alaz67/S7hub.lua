@@ -1,29 +1,8 @@
---[[
-    ╔═══════════════════════════════════════════════════════════════════════════════╗
-    ║                                                                               ║
-    ║   ███████╗███████╗    ███████╗██╗  ██╗██╗   ██╗██████╗                         ║
-    ║   ██╔════╝██╔════╝    ██╔════╝██║  ██║██║   ██║██╔══██╗                        ║
-    ║   ███████╗███████╗    ███████╗███████║██║   ██║██████╔╝                        ║
-    ║   ╚════██║╚════██║    ╚════██║██╔══██║██║   ██║██╔══██╗                        ║
-    ║   ███████║███████║    ███████║██║  ██║╚██████╔╝██████╔╝                        ║
-    ║   ╚══════╝╚══════╝    ╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚═════╝                         ║
-    ║                                                                               ║
-    ║   ██╗  ██╗██╗   ██╗██████╗  █████╗     ██████╗ ██╗   ██╗███████╗              ║
-    ║   ██║  ██║██║   ██║██╔══██╗██╔══██╗    ██╔══██╗██║   ██║██╔════╝              ║
-    ║   ███████║██║   ██║██████╔╝███████║    ██████╔╝██║   ██║█████╗                ║
-    ║   ██╔══██║██║   ██║██╔══██╗██╔══██║    ██╔══██╗██║   ██║██╔══╝                ║
-    ║   ██║  ██║╚██████╔╝██████╔╝██║  ██║    ██████╔╝╚██████╔╝███████╗              ║
-    ║   ╚═╝  ╚═╝ ╚═════╝ ╚═════╝ ╚═╝  ╚═╝    ╚═════╝  ╚═════╝ ╚══════╝              ║
-    ║                                                                               ║
-    ║   Version 7.5 - Black & Blue Theme                                            ║
-    ║   All features OFF by default.                                                ║
-    ║   Includes: Auto Bat, Auto Steal, Lagger, Auto Left/Right, Full Auto,         ║
-    ║   Infinite Jump, Anti Ragdoll, Unwalk, Float, Medusa Counter, Brainrot Return,║
-    ║   ESP, Optimizer, Spin Bot, Galaxy Mode, TP functions, Keybinds,              ║
-    ║   Draggable floating buttons, Minimize bar, Config saving.                    ║
-    ║                                                                               ║
-    ╚═══════════════════════════════════════════════════════════════════════════════╝
---]]
+
+-- =============================================================
+-- S7 SHUB - BLACK & BLUE EDITION (PART 1/2)
+-- Complete full version, all features, no stubs
+-- =============================================================
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -39,97 +18,52 @@ local GuiService = game:GetService("GuiService")
 local player = Players.LocalPlayer
 local camera = Workspace.CurrentCamera
 
--- =============================================================
--- COLORS (Black & Blue Theme)
--- =============================================================
-local ACCENT = Color3.fromRGB(0, 120, 255)      -- Bright electric blue
+-- COLORS
+local ACCENT = Color3.fromRGB(0, 120, 255)
 local DARK_BLUE = Color3.fromRGB(0, 60, 120)
 local BG = Color3.fromRGB(8, 8, 12)
 local CARD = Color3.fromRGB(18, 18, 24)
 local OFF_CLR = Color3.fromRGB(30, 30, 40)
 local WHITE = Color3.fromRGB(240, 240, 245)
-local RED = Color3.fromRGB(220, 60, 80)         -- For bat aimbot highlight
+local RED = Color3.fromRGB(220, 60, 80)
 
 -- =============================================================
 -- CONFIGURATION (ALL FEATURES OFF BY DEFAULT)
 -- =============================================================
 local Config = {
-    -- Speeds
-    NormalSpeed = 60,
-    CarrySpeed = 29,
-    LaggerSpeed = 15,
-    -- Combat
-    AutoBat = false,
-    AutoSwing = true,
-    HarderHit = false,
-    MedusaCounter = false,
-    FastestSteal = false,
-    Desync = false,
-    BrainrotL = false,
-    BrainrotR = false,
-    -- Steal
-    AutoSteal = false,
-    StealRadius = 20,
-    StealDuration = 0.19,
-    -- Movement
-    InfiniteJump = false,
-    AntiRagdoll = false,
-    Unwalk = false,
-    Float = false,
-    FloatHeight = 9.5,
-    DropBrainrot = false,      -- action, not persistent state
-    TPDown = false,
-    TPLeft = false,
-    TPRight = false,
-    -- Visual
-    StretchRez = false,
-    NoCamCollision = false,
-    AntiLag = false,
-    UltraMode = false,
-    RemoveAccessories = false,
-    Esp = false,
-    Optimizer = false,
-    SpinBot = false,
-    GalaxyMode = false,
-    -- Auto
-    AutoTP = false,
-    AutoPlayAfterTP = false,
-    AfterCountdown = false,
-    FullAutoLeft = false,
-    FullAutoRight = false,
-    AutoLeft = false,
-    AutoRight = false,
-    -- Other
-    SpeedBypass = false,
-    Lagger = false,
+    NormalSpeed = 60, CarrySpeed = 29, LaggerSpeed = 15,
+    AutoBat = false, AutoSwing = true, HarderHit = false,
+    MedusaCounter = false, FastestSteal = false, Desync = false,
+    BrainrotL = false, BrainrotR = false,
+    AutoSteal = false, StealRadius = 20, StealDuration = 0.19,
+    InfiniteJump = false, AntiRagdoll = false, Unwalk = false,
+    Float = false, FloatHeight = 9.5, DropBrainrot = false,
+    TPDown = false, TPLeft = false, TPRight = false,
+    StretchRez = false, NoCamCollision = false, AntiLag = false,
+    UltraMode = false, RemoveAccessories = false, Esp = false,
+    Optimizer = false, SpinBot = false, GalaxyMode = false,
+    AutoTP = false, AutoPlayAfterTP = false, AfterCountdown = false,
+    FullAutoLeft = false, FullAutoRight = false,
+    AutoLeft = false, AutoRight = false,
+    SpeedBypass = false, Lagger = false,
 }
 
--- Keybinds (defaults, fully changeable via GUI)
+-- Keybinds
 local Keybinds = {
-    FullAutoLeft = Enum.KeyCode.G,
-    FullAutoRight = Enum.KeyCode.H,
-    AutoLeft = Enum.KeyCode.Q,
-    AutoRight = Enum.KeyCode.E,
-    DropBrainrot = Enum.KeyCode.F,
-    TPDown = Enum.KeyCode.T,
-    TPLeft = Enum.KeyCode.Left,
-    TPRight = Enum.KeyCode.Right,
-    UIVisibility = Enum.KeyCode.U,
-    AutoBat = Enum.KeyCode.X,
-    AutoSteal = Enum.KeyCode.V,
-    LaggerToggle = Enum.KeyCode.L,
-    SpeedBypass = Enum.KeyCode.C,
-    Float = Enum.KeyCode.Float,
-    InfiniteJump = Enum.KeyCode.I,
-    AntiRagdoll = Enum.KeyCode.R,
-    Unwalk = Enum.KeyCode.N,
-    GalaxyToggle = Enum.KeyCode.K,
-    SpinToggle = Enum.KeyCode.P,
-    MedusaToggle = Enum.KeyCode.M,
+    FullAutoLeft = Enum.KeyCode.G, FullAutoRight = Enum.KeyCode.H,
+    AutoLeft = Enum.KeyCode.Q, AutoRight = Enum.KeyCode.E,
+    DropBrainrot = Enum.KeyCode.F, TPDown = Enum.KeyCode.T,
+    TPLeft = Enum.KeyCode.Left, TPRight = Enum.KeyCode.Right,
+    UIVisibility = Enum.KeyCode.U, AutoBat = Enum.KeyCode.X,
+    AutoSteal = Enum.KeyCode.V, LaggerToggle = Enum.KeyCode.L,
+    SpeedBypass = Enum.KeyCode.C, Float = Enum.KeyCode.Float,
+    InfiniteJump = Enum.KeyCode.I, AntiRagdoll = Enum.KeyCode.R,
+    Unwalk = Enum.KeyCode.N, GalaxyToggle = Enum.KeyCode.K,
+    SpinToggle = Enum.KeyCode.P, MedusaToggle = Enum.KeyCode.M,
 }
 
 -- =============================================================
--- SAVING / LOADING (writefile/readfile)
+-- SAVE / LOAD
 -- =============================================================
 local CONFIG_FILE = "S7SHUB_Config.json"
 local savedFloatingPositions = {}
@@ -137,14 +71,8 @@ local savedFloatingPositions = {}
 local function saveConfig()
     pcall(function()
         if not writefile then return end
-        local data = {
-            Config = Config,
-            Keybinds = {},
-            Floating = savedFloatingPositions
-        }
-        for k, v in pairs(Keybinds) do
-            if v then data.Keybinds[k] = v.Name end
-        end
+        local data = { Config = Config, Keybinds = {}, Floating = savedFloatingPositions }
+        for k, v in pairs(Keybinds) do if v then data.Keybinds[k] = v.Name end end
         writefile(CONFIG_FILE, HttpService:JSONEncode(data))
     end)
 end
@@ -153,27 +81,14 @@ local function loadConfig()
     pcall(function()
         if not readfile or not isfile or not isfile(CONFIG_FILE) then return end
         local data = HttpService:JSONDecode(readfile(CONFIG_FILE))
-        if data.Config then
-            for k, v in pairs(data.Config) do
-                if Config[k] ~= nil then Config[k] = v end
-            end
-        end
-        if data.Keybinds then
-            for k, v in pairs(data.Keybinds) do
-                local kc = Enum.KeyCode[v]
-                if kc then Keybinds[k] = kc end
-            end
-        end
-        if data.Floating then
-            for id, pos in pairs(data.Floating) do
-                savedFloatingPositions[id] = pos
-            end
-        end
+        if data.Config then for k, v in pairs(data.Config) do if Config[k] ~= nil then Config[k] = v end end end
+        if data.Keybinds then for k, v in pairs(data.Keybinds) do local kc = Enum.KeyCode[v] if kc then Keybinds[k] = kc end end end
+        if data.Floating then for id, pos in pairs(data.Floating) do savedFloatingPositions[id] = pos end end
     end)
 end
 
 -- =============================================================
--- STARTUP ANIMATION (🤫 S7 SHUB ⚡)
+-- STARTUP ANIMATION
 -- =============================================================
 local function showStartupAnimation()
     local animGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
@@ -210,39 +125,29 @@ local function getHRP()
     local c = player.Character
     return c and c:FindFirstChild("HumanoidRootPart")
 end
-
 local function getHum()
     local c = player.Character
     return c and c:FindFirstChildOfClass("Humanoid")
 end
 
-local function getRoot()
-    return getHRP()
-end
-
 -- =============================================================
--- 1. BAT AIMBOT (RED HIGHLIGHT + AUTO SWING)
+-- BAT AIMBOT (RED)
 -- =============================================================
 local batAimbotConn = nil
 local lastBatSwing = 0
 local BAT_SWING_COOLDOWN = 0.12
 local aimbotHighlight = nil
-local SlapList = {"Bat", "Slap", "Iron Slap", "Gold Slap", "Diamond Slap", "Emerald Slap", "Ruby Slap", "Dark Matter Slap", "Flame Slap", "Nuclear Slap", "Galaxy Slap", "Glitched Slap"}
-
+local SlapList = {"Bat","Slap","Iron Slap","Gold Slap","Diamond Slap","Emerald Slap","Ruby Slap","Dark Matter Slap","Flame Slap","Nuclear Slap","Galaxy Slap","Glitched Slap"}
 local function findBat()
     local c = player.Character
     if not c then return nil end
     local bp = player:FindFirstChildOfClass("Backpack")
     for _, ch in ipairs(c:GetChildren()) do
-        if ch:IsA("Tool") and (ch.Name:lower():find("bat") or ch.Name:lower():find("slap")) then
-            return ch
-        end
+        if ch:IsA("Tool") and (ch.Name:lower():find("bat") or ch.Name:lower():find("slap")) then return ch end
     end
     if bp then
         for _, ch in ipairs(bp:GetChildren()) do
-            if ch:IsA("Tool") and (ch.Name:lower():find("bat") or ch.Name:lower():find("slap")) then
-                return ch
-            end
+            if ch:IsA("Tool") and (ch.Name:lower():find("bat") or ch.Name:lower():find("slap")) then return ch end
         end
     end
     for _, name in ipairs(SlapList) do
@@ -251,7 +156,6 @@ local function findBat()
     end
     return nil
 end
-
 local function getClosestPlayer()
     local hrp = getHRP()
     if not hrp then return nil end
@@ -261,16 +165,12 @@ local function getClosestPlayer()
             local tr = p.Character:FindFirstChild("HumanoidRootPart")
             if tr then
                 local d = (hrp.Position - tr.Position).Magnitude
-                if d < closestDist then
-                    closestDist = d
-                    closest = p
-                end
+                if d < closestDist then closestDist = d; closest = p end
             end
         end
     end
     return closest
 end
-
 local function startBatAimbot()
     if batAimbotConn then return end
     if not aimbotHighlight then
@@ -302,10 +202,7 @@ local function startBatAimbot()
         if Config.AutoSwing then
             local bat = findBat()
             if bat then
-                if bat.Parent ~= c then
-                    local hum = getHum()
-                    if hum then hum:EquipTool(bat) end
-                end
+                if bat.Parent ~= c then local hum = getHum() if hum then hum:EquipTool(bat) end end
                 local now = tick()
                 if now - lastBatSwing >= BAT_SWING_COOLDOWN then
                     lastBatSwing = now
@@ -315,14 +212,13 @@ local function startBatAimbot()
         end
     end)
 end
-
 local function stopBatAimbot()
     if batAimbotConn then batAimbotConn:Disconnect(); batAimbotConn = nil end
     if aimbotHighlight then aimbotHighlight.Adornee = nil end
 end
 
 -- =============================================================
--- 2. AUTO STEAL (FULL IMPLEMENTATION WITH PROGRESS BAR)
+-- AUTO STEAL (WITH PROGRESS BAR)
 -- =============================================================
 local autoStealConn = nil
 local isStealing = false
@@ -352,12 +248,7 @@ local function scanPlot(plot)
     if not podiums then return end
     for _, pod in ipairs(podiums:GetChildren()) do
         if pod:IsA("Model") and pod:FindFirstChild("Base") then
-            table.insert(animalCache, {
-                plot = plot.Name,
-                slot = pod.Name,
-                worldPosition = pod:GetPivot().Position,
-                uid = plot.Name .. "_" .. pod.Name
-            })
+            table.insert(animalCache, { plot = plot.Name, slot = pod.Name, worldPosition = pod:GetPivot().Position, uid = plot.Name .. "_" .. pod.Name })
         end
     end
 end
@@ -381,10 +272,7 @@ local function findPromptForAnimal(ad)
     local att = sp:FindFirstChild("PromptAttachment")
     if not att then return nil end
     for _, p in ipairs(att:GetChildren()) do
-        if p:IsA("ProximityPrompt") then
-            promptCache[ad.uid] = p
-            return p
-        end
+        if p:IsA("ProximityPrompt") then promptCache[ad.uid] = p; return p end
     end
 end
 
@@ -393,17 +281,11 @@ local function buildCallbacks(prompt)
     local data = { hold = {}, trigger = {}, ready = true }
     pcall(function()
         if getconnections then
-            for _, c in ipairs(getconnections(prompt.PromptButtonHoldBegan)) do
-                if type(c.Function) == "function" then table.insert(data.hold, c.Function) end
-            end
-            for _, c in ipairs(getconnections(prompt.Triggered)) do
-                if type(c.Function) == "function" then table.insert(data.trigger, c.Function) end
-            end
+            for _, c in ipairs(getconnections(prompt.PromptButtonHoldBegan)) do if type(c.Function)=="function" then table.insert(data.hold, c.Function) end end
+            for _, c in ipairs(getconnections(prompt.Triggered)) do if type(c.Function)=="function" then table.insert(data.trigger, c.Function) end end
         end
     end)
-    if #data.hold > 0 or #data.trigger > 0 then
-        stealCache[prompt] = data
-    end
+    if #data.hold > 0 or #data.trigger > 0 then stealCache[prompt] = data end
 end
 
 local function execSteal(prompt)
@@ -431,10 +313,7 @@ local function nearestAnimal()
     for _, ad in ipairs(animalCache) do
         if not isMyBase(ad.plot) and ad.worldPosition then
             local d = (h.Position - ad.worldPosition).Magnitude
-            if d < bestD then
-                bestD = d
-                best = ad
-            end
+            if d < bestD then bestD = d; best = ad end
         end
     end
     return best
@@ -451,10 +330,7 @@ local function startAutoSteal()
         if (h.Position - target.worldPosition).Magnitude > Config.StealRadius then return end
         local prompt = promptCache[target.uid]
         if not prompt or not prompt.Parent then prompt = findPromptForAnimal(target) end
-        if prompt then
-            buildCallbacks(prompt)
-            execSteal(prompt)
-        end
+        if prompt then buildCallbacks(prompt); execSteal(prompt) end
     end)
 end
 
@@ -463,7 +339,7 @@ local function stopAutoSteal()
     isStealing = false
 end
 
--- Periodic animal cache refresh
+-- auto refresh animal cache
 task.spawn(function()
     task.wait(2)
     while true do
@@ -479,10 +355,9 @@ task.spawn(function()
 end)
 
 -- =============================================================
--- 3. LAGGER MODE (ADJUSTABLE SPEED, BRAINROT REACTION)
+-- LAGGER MODE
 -- =============================================================
 local laggerMonitorConns = {}
-
 local function updateLaggerSpeed()
     if not Config.Lagger then return end
     local char = player.Character
@@ -490,14 +365,9 @@ local function updateLaggerSpeed()
     local hasBrainrot = char:FindFirstChild("Brainrot") ~= nil
     local hum = getHum()
     if hum then
-        if hasBrainrot then
-            hum.WalkSpeed = 10.5
-        else
-            hum.WalkSpeed = Config.LaggerSpeed
-        end
+        if hasBrainrot then hum.WalkSpeed = 10.5 else hum.WalkSpeed = Config.LaggerSpeed end
     end
 end
-
 local function setupLaggerMonitor()
     local char = player.Character
     if not char then return end
@@ -509,26 +379,19 @@ local function setupLaggerMonitor()
             hum.WalkSpeed = hasBrainrot and 10.5 or Config.LaggerSpeed
         end
     end
-    local addedConn = char.ChildAdded:Connect(function(child)
-        if child.Name == "Brainrot" then check() end
-    end)
-    local removedConn = char.ChildRemoved:Connect(function(child)
-        if child.Name == "Brainrot" then check() end
-    end)
+    local addedConn = char.ChildAdded:Connect(function(child) if child.Name == "Brainrot" then check() end end)
+    local removedConn = char.ChildRemoved:Connect(function(child) if child.Name == "Brainrot" then check() end end)
     table.insert(laggerMonitorConns, addedConn)
     table.insert(laggerMonitorConns, removedConn)
     check()
 end
-
 local function cleanupLaggerMonitor()
-    for _, conn in ipairs(laggerMonitorConns) do
-        pcall(function() conn:Disconnect() end)
-    end
+    for _, conn in ipairs(laggerMonitorConns) do pcall(function() conn:Disconnect() end) end
     laggerMonitorConns = {}
 end
 
 -- =============================================================
--- 4. INFINITE JUMP
+-- INFINITE JUMP
 -- =============================================================
 local infJumpConn = nil
 local function startInfJump()
@@ -536,9 +399,7 @@ local function startInfJump()
     infJumpConn = UserInputService.JumpRequest:Connect(function()
         if not Config.InfiniteJump then return end
         local h = getHRP()
-        if h then
-            h.AssemblyLinearVelocity = Vector3.new(h.AssemblyLinearVelocity.X, 55, h.AssemblyLinearVelocity.Z)
-        end
+        if h then h.AssemblyLinearVelocity = Vector3.new(h.AssemblyLinearVelocity.X, 55, h.AssemblyLinearVelocity.Z)
     end)
 end
 local function stopInfJump()
@@ -546,7 +407,7 @@ local function stopInfJump()
 end
 
 -- =============================================================
--- 5. ANTI RAGDOLL
+-- ANTI RAGDOLL
 -- =============================================================
 local antiRagdollConn = nil
 local function startAntiRagdoll()
@@ -575,7 +436,7 @@ local function stopAntiRagdoll()
 end
 
 -- =============================================================
--- 6. UNWALK (STOPS ALL ANIMATIONS)
+-- UNWALK
 -- =============================================================
 local unwalkConn = nil
 local function startUnwalk()
@@ -585,11 +446,7 @@ local function startUnwalk()
         local hum = getHum()
         if hum then
             local animator = hum:FindFirstChildOfClass("Animator")
-            if animator then
-                for _, t in ipairs(animator:GetPlayingAnimationTracks()) do
-                    t:Stop()
-                end
-            end
+            if animator then for _, t in ipairs(animator:GetPlayingAnimationTracks()) do t:Stop() end end
         end
     end)
 end
@@ -598,7 +455,7 @@ local function stopUnwalk()
 end
 
 -- =============================================================
--- 7. FLOAT (MAINTAIN HEIGHT, JUMP TO RISE)
+-- FLOAT
 -- =============================================================
 local floatConn = nil
 local floatTargetY = nil
@@ -608,9 +465,7 @@ local function startFloat()
         if not Config.Float then return end
         local hrp = getHRP()
         if not hrp then return end
-        if floatTargetY == nil then
-            floatTargetY = hrp.Position.Y + Config.FloatHeight
-        end
+        if floatTargetY == nil then floatTargetY = hrp.Position.Y + Config.FloatHeight end
         local diff = floatTargetY - hrp.Position.Y
         local velY = math.clamp(diff * 15, -40, 40)
         hrp.AssemblyLinearVelocity = Vector3.new(hrp.AssemblyLinearVelocity.X, velY, hrp.AssemblyLinearVelocity.Z)
@@ -621,13 +476,11 @@ local function stopFloat()
     floatTargetY = nil
 end
 UserInputService.JumpRequest:Connect(function()
-    if Config.Float and floatTargetY then
-        floatTargetY = floatTargetY + 15
-    end
+    if Config.Float and floatTargetY then floatTargetY = floatTargetY + 15 end
 end)
 
 -- =============================================================
--- 8. DROP BRAINROT (ASCEND THEN DROP)
+-- DROP BRAINROT
 -- =============================================================
 local function doDropBrainrot()
     local hrp = getHRP()
@@ -639,29 +492,23 @@ local function doDropBrainrot()
 end
 
 -- =============================================================
--- 9. TP DOWN / LEFT / RIGHT
+-- TP DOWN / LEFT / RIGHT
 -- =============================================================
 local function doTPDown()
     local hrp = getHRP()
-    if hrp then
-        hrp.CFrame = hrp.CFrame * CFrame.new(0, -20, 0)
-    end
+    if hrp then hrp.CFrame = hrp.CFrame * CFrame.new(0, -20, 0)
 end
 local function doTPLeft()
     local hrp = getHRP()
-    if hrp then
-        hrp.CFrame = CFrame.new(-476.48, -6.28, 92.73)
-    end
+    if hrp then hrp.CFrame = CFrame.new(-476.48, -6.28, 92.73)
 end
 local function doTPRight()
     local hrp = getHRP()
-    if hrp then
-        hrp.CFrame = CFrame.new(-476.16, -6.52, 25.62)
-    end
+    if hrp then hrp.CFrame = CFrame.new(-476.16, -6.52, 25.62)
 end
 
 -- =============================================================
--- 10. ESP (HIGHLIGHTS ENEMIES)
+-- ESP
 -- =============================================================
 local espHighlights = {}
 local function updateESP()
@@ -679,8 +526,7 @@ local function updateESP()
                         espHighlights[p] = hl
                     end
                 else
-                    if espHighlights[p] then espHighlights[p]:Destroy() end
-                    espHighlights[p] = nil
+                    if espHighlights[p] then espHighlights[p]:Destroy(); espHighlights[p] = nil end
                 end
             end
         end
@@ -688,15 +534,13 @@ local function updateESP()
 end
 
 -- =============================================================
--- 11. OPTIMIZER (REDUCE GRAPHICS)
+-- OPTIMIZER
 -- =============================================================
 local function enableOptimizer()
     Lighting.GlobalShadows = false
     Lighting.Brightness = 2
     Lighting.FogEnd = 9e9
-    for _, fx in ipairs(Lighting:GetChildren()) do
-        if fx:IsA("PostEffect") then fx.Enabled = false end
-    end
+    for _, fx in ipairs(Lighting:GetChildren()) do if fx:IsA("PostEffect") then fx.Enabled = false end end
 end
 local function disableOptimizer()
     Lighting.GlobalShadows = true
@@ -705,7 +549,7 @@ local function disableOptimizer()
 end
 
 -- =============================================================
--- 12. SPIN BOT
+-- SPIN BOT
 -- =============================================================
 local spinBAV = nil
 local function startSpin()
@@ -723,14 +567,13 @@ local function stopSpin()
 end
 
 -- =============================================================
--- 13. GALAXY MODE (REDUCED GRAVITY + HOPPING)
+-- GALAXY MODE
 -- =============================================================
 local galaxyVF = nil
 local galaxyAtt = nil
 local galaxyHopConn = nil
 local lastHop = 0
 local HOP_COOLDOWN = 0.08
-
 local function updateGalaxyForce()
     if not Config.GalaxyMode then return end
     local hrp = getHRP()
@@ -744,14 +587,9 @@ local function updateGalaxyForce()
     end
     local mass = 0
     local c = player.Character
-    if c then
-        for _, p in ipairs(c:GetDescendants()) do
-            if p:IsA("BasePart") then mass = mass + p:GetMass() end
-        end
-    end
+    if c then for _, p in ipairs(c:GetDescendants()) do if p:IsA("BasePart") then mass = mass + p:GetMass() end end end
     galaxyVF.Force = Vector3.new(0, mass * (196.2 - 196.2 * 0.7) * 0.95, 0)
 end
-
 local function doGalaxyHop()
     if not Config.GalaxyMode then return end
     local hrp = getHRP()
@@ -765,7 +603,7 @@ local function doGalaxyHop()
 end
 
 -- =============================================================
--- 14. SIMPLE AUTO LEFT / RIGHT (POINT MOVEMENT)
+-- SIMPLE AUTO LEFT / RIGHT
 -- =============================================================
 local function updateAutoMovement()
     if Config.AutoLeft then
@@ -786,78 +624,52 @@ local function updateAutoMovement()
 end
 
 -- =============================================================
--- 15. FULL AUTO LEFT / RIGHT (WAYPOINT PATHS WITH RETURN)
+-- FULL AUTO LEFT / RIGHT (WAYPOINTS)
 -- =============================================================
 local fullAutoConn = nil
 local fullAutoState = { walking = false, side = nil, wpIndex = 1, returning = false }
-local LEFT_WAYPOINTS = {
-    Vector3.new(-476.48, -6.28, 92.73),
-    Vector3.new(-483.12, -4.95, 94.80),
-    Vector3.new(-475.68, -6.89, 92.76),
-    Vector3.new(-476.50, -6.46, 27.58),
-    Vector3.new(-482.42, -5.03, 27.84),
-}
-local RIGHT_WAYPOINTS = {
-    Vector3.new(-476.16, -6.52, 25.62),
-    Vector3.new(-483.06, -5.03, 27.51),
-    Vector3.new(-476.21, -6.63, 27.46),
-    Vector3.new(-476.66, -6.39, 92.44),
-    Vector3.new(-481.94, -5.03, 92.42),
-}
-local LEFT_RETURN = { Vector3.new(-475.68, -6.89, 92.76), Vector3.new(-476.48, -6.28, 92.73) }
-local RIGHT_RETURN = { Vector3.new(-476.21, -6.63, 27.46), Vector3.new(-476.16, -6.52, 25.62) }
+local LEFT_WAYPOINTS = { Vector3.new(-476.48,-6.28,92.73), Vector3.new(-483.12,-4.95,94.80), Vector3.new(-475.68,-6.89,92.76), Vector3.new(-476.50,-6.46,27.58), Vector3.new(-482.42,-5.03,27.84) }
+local RIGHT_WAYPOINTS = { Vector3.new(-476.16,-6.52,25.62), Vector3.new(-483.06,-5.03,27.51), Vector3.new(-476.21,-6.63,27.46), Vector3.new(-476.66,-6.39,92.44), Vector3.new(-481.94,-5.03,92.42) }
+local LEFT_RETURN = { Vector3.new(-475.68,-6.89,92.76), Vector3.new(-476.48,-6.28,92.73) }
+local RIGHT_RETURN = { Vector3.new(-476.21,-6.63,27.46), Vector3.new(-476.16,-6.52,25.62) }
 
 local function startFullAuto()
     if fullAutoConn then return end
     fullAutoConn = RunService.Heartbeat:Connect(function()
         if not (Config.FullAutoLeft or Config.FullAutoRight) then
-            if fullAutoState.walking then
-                fullAutoState.walking = false
-                fullAutoState.returning = false
-                fullAutoState.wpIndex = 1
-            end
+            if fullAutoState.walking then fullAutoState.walking = false; fullAutoState.returning = false; fullAutoState.wpIndex = 1 end
             return
         end
         local side = Config.FullAutoLeft and "left" or "right"
         if not fullAutoState.walking then
-            fullAutoState.walking = true
-            fullAutoState.side = side
-            fullAutoState.wpIndex = 1
-            fullAutoState.returning = false
+            fullAutoState.walking = true; fullAutoState.side = side; fullAutoState.wpIndex = 1; fullAutoState.returning = false
         end
         local hrp = getHRP()
         if not hrp then return end
-        local waypoints = fullAutoState.returning and (side == "left" and LEFT_RETURN or RIGHT_RETURN) or (side == "left" and LEFT_WAYPOINTS or RIGHT_WAYPOINTS)
+        local waypoints = fullAutoState.returning and (side=="left" and LEFT_RETURN or RIGHT_RETURN) or (side=="left" and LEFT_WAYPOINTS or RIGHT_WAYPOINTS)
         if fullAutoState.wpIndex > #waypoints then
             if not fullAutoState.returning then
-                fullAutoState.returning = true
-                fullAutoState.wpIndex = 1
+                fullAutoState.returning = true; fullAutoState.wpIndex = 1
                 return
             else
-                fullAutoState.walking = false
-                fullAutoState.returning = false
-                fullAutoState.wpIndex = 1
+                fullAutoState.walking = false; fullAutoState.returning = false; fullAutoState.wpIndex = 1
                 return
             end
         end
         local target = waypoints[fullAutoState.wpIndex]
         local dir = (target - hrp.Position).Unit
         local dist = (target - hrp.Position).Magnitude
-        if dist < 2 then
-            fullAutoState.wpIndex = fullAutoState.wpIndex + 1
-            return
-        end
+        if dist < 2 then fullAutoState.wpIndex = fullAutoState.wpIndex + 1; return end
         hrp.AssemblyLinearVelocity = Vector3.new(dir.X * Config.NormalSpeed, hrp.AssemblyLinearVelocity.Y, dir.Z * Config.NormalSpeed)
     end)
 end
-
 local function stopFullAuto()
     if fullAutoConn then fullAutoConn:Disconnect(); fullAutoConn = nil end
     fullAutoState.walking = false
 end
 
 -- =============================================================
--- 16. SPEED BYPASS (CARRY SPEED WHILE MOVING)
+-- SPEED BYPASS (CARRY SPEED)
 -- =============================================================
 local speedBypassConn = nil
 local function startSpeedBypass()
@@ -880,31 +692,21 @@ local function stopSpeedBypass()
 end
 
 -- =============================================================
--- 17. MEDUSA COUNTER (AUTO-USE MEDUSA TOOL WHEN PETRIFIED)
+-- MEDUSA COUNTER
 -- =============================================================
 local medusaConns = {}
 local medusaDebounce = false
 local medusaLastUsed = 0
-
 local function findMedusaTool()
     local c = player.Character
     if not c then return nil end
     for _, tool in ipairs(c:GetChildren()) do
-        if tool:IsA("Tool") and (tool.Name:lower():find("medusa") or tool.Name:lower():find("head") or tool.Name:lower():find("stone")) then
-            return tool
-        end
+        if tool:IsA("Tool") and (tool.Name:lower():find("medusa") or tool.Name:lower():find("head") or tool.Name:lower():find("stone")) then return tool end
     end
     local bp = player:FindFirstChild("Backpack")
-    if bp then
-        for _, tool in ipairs(bp:GetChildren()) do
-            if tool:IsA("Tool") and (tool.Name:lower():find("medusa") or tool.Name:lower():find("head") or tool.Name:lower():find("stone")) then
-                return tool
-            end
-        end
-    end
+    if bp then for _, tool in ipairs(bp:GetChildren()) do if tool:IsA("Tool") and (tool.Name:lower():find("medusa") or tool.Name:lower():find("head") or tool.Name:lower():find("stone")) then return tool end end end
     return nil
 end
-
 local function useMedusa()
     if medusaDebounce or tick() - medusaLastUsed < 25 then return end
     medusaDebounce = true
@@ -917,7 +719,6 @@ local function useMedusa()
     end
     medusaDebounce = false
 end
-
 local function setupMedusaCounter()
     for _, conn in ipairs(medusaConns) do pcall(function() conn:Disconnect() end) end
     medusaConns = {}
@@ -925,29 +726,20 @@ local function setupMedusaCounter()
     if not char then return end
     local function onAnchorChanged(part)
         return part:GetPropertyChangedSignal("Anchored"):Connect(function()
-            if Config.MedusaCounter and part.Anchored and part.Transparency == 1 then
-                useMedusa()
-            end
+            if Config.MedusaCounter and part.Anchored and part.Transparency == 1 then useMedusa() end
         end)
     end
-    for _, part in ipairs(char:GetDescendants()) do
-        if part:IsA("BasePart") then
-            table.insert(medusaConns, onAnchorChanged(part))
-        end
-    end
-    table.insert(medusaConns, char.DescendantAdded:Connect(function(part)
-        if part:IsA("BasePart") then table.insert(medusaConns, onAnchorChanged(part)) end
-    end))
+    for _, part in ipairs(char:GetDescendants()) do if part:IsA("BasePart") then table.insert(medusaConns, onAnchorChanged(part)) end end
+    table.insert(medusaConns, char.DescendantAdded:Connect(function(part) if part:IsA("BasePart") then table.insert(medusaConns, onAnchorChanged(part)) end end))
 end
 
 -- =============================================================
--- 18. BRAINROT RETURN (TELEPORT WHEN HIT)
+-- BRAINROT RETURN
 -- =============================================================
 local brainrotReturnCooldown = false
 local lastHealth = 100
 local LEFT_RETURN_POS = Vector3.new(-475.27, -6.99, 94.54)
 local RIGHT_RETURN_POS = Vector3.new(-475.22, -6.99, 23.63)
-
 local function doBrainrotReturn()
     if brainrotReturnCooldown then return end
     local side = nil
@@ -955,7 +747,7 @@ local function doBrainrotReturn()
     elseif Config.BrainrotR then side = "right"
     else return end
     brainrotReturnCooldown = true
-    local target = (side == "left") and LEFT_RETURN_POS or RIGHT_RETURN_POS
+    local target = (side=="left") and LEFT_RETURN_POS or RIGHT_RETURN_POS
     local hrp = getHRP()
     if hrp then
         hrp.AssemblyLinearVelocity = Vector3.zero
@@ -964,22 +756,18 @@ local function doBrainrotReturn()
     task.wait(0.5)
     brainrotReturnCooldown = false
 end
-
--- Health monitor for Brainrot Return
 RunService.Heartbeat:Connect(function()
     if not (Config.BrainrotL or Config.BrainrotR) then return end
     local hum = getHum()
     if hum then
         local current = hum.Health
-        if current < lastHealth - 5 then
-            doBrainrotReturn()
-        end
+        if current < lastHealth - 5 then doBrainrotReturn() end
         lastHealth = current
     end
 end)
 
 -- =============================================================
--- 19. AUTO TP (RAGDOLL TELEPORT)
+-- AUTO TP (RAGDOLL TELEPORT)
 -- =============================================================
 local autoTPCooldown = false
 local function doAutoTP()
@@ -989,25 +777,22 @@ local function doAutoTP()
     local hrp = getHRP()
     if hrp then
         hrp.AssemblyLinearVelocity = Vector3.zero
-        hrp.CFrame = CFrame.new(-476.48, -6.28, 92.73) -- default left base
+        hrp.CFrame = CFrame.new(-476.48, -6.28, 92.73)
     end
     task.wait(0.5)
     autoTPCooldown = false
 end
-
 RunService.Heartbeat:Connect(function()
     if not Config.AutoTP then return end
     local hum = getHum()
     if hum then
         local state = hum:GetState()
-        if state == Enum.HumanoidStateType.Physics or state == Enum.HumanoidStateType.Ragdoll or state == Enum.HumanoidStateType.FallingDown then
-            doAutoTP()
-        end
+        if state == Enum.HumanoidStateType.Physics or state == Enum.HumanoidStateType.Ragdoll or state == Enum.HumanoidStateType.FallingDown then doAutoTP() end
     end
 end)
 
 -- =============================================================
--- 20. AFTER COUNTDOWN (AUTO PLAY AFTER DUEL COUNTDOWN)
+-- AFTER COUNTDOWN
 -- =============================================================
 local countdownActive = false
 local countdownConn = nil
@@ -1018,30 +803,20 @@ local function monitorCountdown()
         countdownConn = sound:GetPropertyChangedSignal("TimePosition"):Connect(function()
             if Config.AfterCountdown and not countdownActive and sound.TimePosition >= 4.8 then
                 countdownActive = true
-                if Config.FullAutoLeft then
-                    Config.FullAutoLeft = true
-                    Config.FullAutoRight = false
-                    startFullAuto()
-                elseif Config.FullAutoRight then
-                    Config.FullAutoRight = true
-                    Config.FullAutoLeft = false
-                    startFullAuto()
-                end
+                if Config.FullAutoLeft then Config.FullAutoLeft = true; Config.FullAutoRight = false; startFullAuto()
+                elseif Config.FullAutoRight then Config.FullAutoRight = true; Config.FullAutoLeft = false; startFullAuto() end
                 task.delay(5, function() countdownActive = false end)
             end
         end)
     end
 end
-Workspace.ChildAdded:Connect(function(child)
-    if child.Name == "Countdown" then monitorCountdown() end
-end)
+Workspace.ChildAdded:Connect(function(child) if child.Name == "Countdown" then monitorCountdown() end end)
 monitorCountdown()
 
 -- =============================================================
--- 21. MAIN TOGGLES CONNECTOR
+-- MAIN TOGGLES CONNECTOR
 -- =============================================================
 local function applyAllToggles()
-    -- Combat
     if Config.AutoBat then startBatAimbot() else stopBatAimbot() end
     if Config.AutoSteal then startAutoSteal() else stopAutoSteal() end
     if Config.InfiniteJump then startInfJump() else stopInfJump() end
@@ -1049,19 +824,14 @@ local function applyAllToggles()
     if Config.Unwalk then startUnwalk() else stopUnwalk() end
     if Config.Float then startFloat() else stopFloat() end
     if Config.Lagger then setupLaggerMonitor() else cleanupLaggerMonitor() end
-    if Config.Esp then updateESP() else
-        for _, h in pairs(espHighlights) do pcall(function() h:Destroy() end) end
-        espHighlights = {}
-    end
+    if Config.Esp then updateESP() else for _, h in pairs(espHighlights) do pcall(function() h:Destroy() end) end; espHighlights = {} end
     if Config.Optimizer then enableOptimizer() else disableOptimizer() end
     if Config.SpinBot then startSpin() else stopSpin() end
     if Config.GalaxyMode then
         updateGalaxyForce()
         if not galaxyHopConn then
             galaxyHopConn = UserInputService.InputBegan:Connect(function(input)
-                if input.KeyCode == Enum.KeyCode.Space and Config.GalaxyMode then
-                    doGalaxyHop()
-                end
+                if input.KeyCode == Enum.KeyCode.Space and Config.GalaxyMode then doGalaxyHop() end
             end)
         end
     else
@@ -1069,22 +839,18 @@ local function applyAllToggles()
         if galaxyAtt then galaxyAtt:Destroy(); galaxyAtt = nil end
         if galaxyHopConn then galaxyHopConn:Disconnect(); galaxyHopConn = nil end
     end
-    if Config.MedusaCounter then setupMedusaCounter() else
-        for _, conn in ipairs(medusaConns) do pcall(function() conn:Disconnect() end) end
-        medusaConns = {}
-    end
+    if Config.MedusaCounter then setupMedusaCounter() else for _, conn in ipairs(medusaConns) do pcall(function() conn:Disconnect() end) end; medusaConns = {} end
     if Config.FullAutoLeft or Config.FullAutoRight then startFullAuto() else stopFullAuto() end
     if Config.SpeedBypass then startSpeedBypass() else stopSpeedBypass() end
 end
 
--- Heartbeat for simple auto movement and galaxy force updates
 RunService.Heartbeat:Connect(function()
     updateAutoMovement()
     if Config.GalaxyMode then updateGalaxyForce() end
 end)
 
 -- =============================================================
--- 22. FULL GUI CONSTRUCTION (TABS, TOGGLES, SLIDERS, KEYBINDS, PANELS)
+-- GUI CONSTRUCTION (MAIN WINDOW, TABS, TOGGLES, SLIDERS, KEYBINDS)
 -- =============================================================
 local ScreenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 ScreenGui.Name = "S7MainGUI"
@@ -1191,16 +957,12 @@ for i, name in ipairs(tabs) do
     btn.MouseButton1Click:Connect(function()
         for _, c in pairs(tabContents) do c.Visible = false end
         content.Visible = true
-        for _, b in pairs(tabButtons) do
-            b.BackgroundColor3 = BG
-            b.TextColor3 = ACCENT
-        end
-        btn.BackgroundColor3 = ACCENT
-        btn.TextColor3 = BG
+        for _, b in pairs(tabButtons) do b.BackgroundColor3 = BG; b.TextColor3 = ACCENT end
+        btn.BackgroundColor3 = ACCENT; btn.TextColor3 = BG
     end)
 end
 
--- Helper: add a toggle row with animated switch
+-- Helper: add a toggle row
 local function addToggle(parent, label, configKey, yPos)
     local row = Instance.new("Frame", parent)
     row.Size = UDim2.new(1, -10, 0, 40)
@@ -1247,7 +1009,7 @@ local function addToggle(parent, label, configKey, yPos)
     return row
 end
 
--- Helper: add a slider with value label and live update
+-- Helper: add a slider
 local function addSlider(parent, label, configKey, minVal, maxVal, defaultVal, yPos)
     local row = Instance.new("Frame", parent)
     row.Size = UDim2.new(1, -10, 0, 52)
@@ -1289,16 +1051,13 @@ local function addSlider(parent, label, configKey, minVal, maxVal, defaultVal, y
     dragBtn.Text = ""
     local dragging = false
     dragBtn.MouseButton1Down:Connect(function() dragging = true end)
-    UserInputService.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
-    end)
+    UserInputService.InputEnded:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end end)
     UserInputService.InputChanged:Connect(function(input)
         if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
             local pos = input.Position.X
             local rel = math.clamp((pos - slider.AbsolutePosition.X) / slider.AbsoluteSize.X, 0, 1)
             local val = minVal + (maxVal - minVal) * rel
-            if configKey == "StealDuration" then val = math.round(val * 100) / 100
-            else val = math.floor(val) end
+            if configKey == "StealDuration" then val = math.round(val * 100) / 100 else val = math.floor(val) end
             Config[configKey] = val
             fill.Size = UDim2.new(rel, 0, 1, 0)
             valLbl.Text = tostring(val)
@@ -1309,7 +1068,7 @@ local function addSlider(parent, label, configKey, minVal, maxVal, defaultVal, y
     return row
 end
 
--- Build all tabs
+-- BUILD TABS
 local y = 5
 local speedTab = tabContents["Speed"]
 addToggle(speedTab, "Speed Bypass", "SpeedBypass", y); y = y + 44
@@ -1370,7 +1129,8 @@ addToggle(autoTab, "Auto Right", "AutoRight", y)
 
 y = 5
 local setTab = tabContents["Settings"]
--- Keybind rows (interactive, click to change)
+
+-- Keybind rows (click to change)
 local keyNames = {
     "FullAutoLeft", "FullAutoRight", "AutoLeft", "AutoRight",
     "DropBrainrot", "TPDown", "TPLeft", "TPRight", "UIVisibility",
@@ -1418,15 +1178,14 @@ for _, name in ipairs(keyNames) do
                     keyBtn.Text = input.KeyCode.Name
                     saveConfig()
                 end
-                listening = false
-                conn:Disconnect()
+                listening = false; conn:Disconnect()
             end
         end)
     end)
     y = y + 44
 end
 
--- Additional panels: Desync and Lagger (popup frames)
+-- Additional panels: Desync and Lagger
 local desyncPanel = Instance.new("Frame", ScreenGui)
 desyncPanel.Size = UDim2.new(0, 240, 0, 160)
 desyncPanel.Position = UDim2.new(1, -260, 0.5, -80)
@@ -1514,7 +1273,7 @@ Instance.new("UICorner", showLaggerBtn).CornerRadius = UDim.new(0, 8)
 showLaggerBtn.MouseButton1Click:Connect(function() laggerPanel.Visible = not laggerPanel.Visible end)
 
 -- =============================================================
--- 23. DRAGGABLE FLOATING BUTTONS (8 BUTTONS, SAVE POSITIONS)
+-- DRAGGABLE FLOATING BUTTONS (8 BUTTONS)
 -- =============================================================
 local floatingButtons = {}
 local btnList = {
@@ -1542,7 +1301,7 @@ for _, cfg in ipairs(btnList) do
     local pos = savedFloatingPositions[cfg.id]
     btn.Position = pos and UDim2.new(0, pos.x, 0, pos.y) or UDim2.new(0, 130 + math.random(0, 300), 0, 110 + math.random(0, 400))
     btn.Parent = ScreenGui
-    -- Dragging logic
+    -- Dragging
     local dragging = false
     local dragStart, startPos
     btn.InputBegan:Connect(function(input)
@@ -1565,7 +1324,6 @@ for _, cfg in ipairs(btnList) do
             saveConfig()
         end
     end)
-    -- Toggle on click
     btn.MouseButton1Click:Connect(function()
         Config[cfg.configKey] = not Config[cfg.configKey]
         btn.BackgroundColor3 = Config[cfg.configKey] and ACCENT or CARD
@@ -1579,7 +1337,7 @@ for _, cfg in ipairs(btnList) do
 end
 
 -- =============================================================
--- 24. PROGRESS BAR FOR AUTO STEAL (BOTTOM OF SCREEN)
+-- PROGRESS BAR FOR AUTO STEAL
 -- =============================================================
 local progressBarFrame = Instance.new("Frame", ScreenGui)
 progressBarFrame.Size = UDim2.new(0, 400, 0, 52)
@@ -1624,24 +1382,18 @@ local function updateProgressBarVisibility()
 end
 local oldAutoSteal = Config.AutoSteal
 RunService.Heartbeat:Connect(function()
-    if Config.AutoSteal ~= oldAutoSteal then
-        oldAutoSteal = Config.AutoSteal
-        updateProgressBarVisibility()
-    end
+    if Config.AutoSteal ~= oldAutoSteal then oldAutoSteal = Config.AutoSteal; updateProgressBarVisibility() end
     if Config.AutoSteal and isStealing then
         local prog = math.clamp((tick() - (stealStartTime or tick())) / Config.StealDuration, 0, 1)
         ProgressBarFill.Size = UDim2.new(prog, 0, 1, 0)
         ProgressPctLabel.Text = math.floor(prog * 100) .. "%"
     else
-        if ProgressBarFill.Size.X.Scale ~= 0 then
-            ProgressBarFill.Size = UDim2.new(0, 0, 1, 0)
-            ProgressPctLabel.Text = ""
-        end
+        if ProgressBarFill.Size.X.Scale ~= 0 then ProgressBarFill.Size = UDim2.new(0, 0, 1, 0); ProgressPctLabel.Text = "" end
     end
 end)
 
 -- =============================================================
--- 25. KEYBIND HANDLER (GLOBAL INPUT)
+-- GLOBAL KEYBIND HANDLER
 -- =============================================================
 UserInputService.InputBegan:Connect(function(input, gpe)
     if gpe then return end
@@ -1656,81 +1408,34 @@ UserInputService.InputBegan:Connect(function(input, gpe)
     if kc == Keybinds.TPDown then doTPDown() end
     if kc == Keybinds.TPLeft then doTPLeft() end
     if kc == Keybinds.TPRight then doTPRight() end
-    if kc == Keybinds.AutoLeft then
-        Config.AutoLeft = not Config.AutoLeft
-        if Config.AutoLeft then Config.AutoRight = false end
-        applyAllToggles(); saveConfig()
-    end
-    if kc == Keybinds.AutoRight then
-        Config.AutoRight = not Config.AutoRight
-        if Config.AutoRight then Config.AutoLeft = false end
-        applyAllToggles(); saveConfig()
-    end
-    if kc == Keybinds.FullAutoLeft then
-        Config.FullAutoLeft = not Config.FullAutoLeft
-        if Config.FullAutoLeft then Config.FullAutoRight = false end
-        applyAllToggles(); saveConfig()
-    end
-    if kc == Keybinds.FullAutoRight then
-        Config.FullAutoRight = not Config.FullAutoRight
-        if Config.FullAutoRight then Config.FullAutoLeft = false end
-        applyAllToggles(); saveConfig()
-    end
-    if kc == Keybinds.AutoBat then
-        Config.AutoBat = not Config.AutoBat
-        applyAllToggles(); saveConfig()
-    end
-    if kc == Keybinds.AutoSteal then
-        Config.AutoSteal = not Config.AutoSteal
-        applyAllToggles(); saveConfig()
-    end
-    if kc == Keybinds.LaggerToggle then
-        Config.Lagger = not Config.Lagger
-        applyAllToggles(); saveConfig()
-    end
-    if kc == Keybinds.SpeedBypass then
-        Config.SpeedBypass = not Config.SpeedBypass
-        applyAllToggles(); saveConfig()
-    end
-    if kc == Keybinds.Float then
-        Config.Float = not Config.Float
-        applyAllToggles(); saveConfig()
-    end
-    if kc == Keybinds.InfiniteJump then
-        Config.InfiniteJump = not Config.InfiniteJump
-        applyAllToggles(); saveConfig()
-    end
-    if kc == Keybinds.AntiRagdoll then
-        Config.AntiRagdoll = not Config.AntiRagdoll
-        applyAllToggles(); saveConfig()
-    end
-    if kc == Keybinds.Unwalk then
-        Config.Unwalk = not Config.Unwalk
-        applyAllToggles(); saveConfig()
-    end
-    if kc == Keybinds.GalaxyToggle then
-        Config.GalaxyMode = not Config.GalaxyMode
-        applyAllToggles(); saveConfig()
-    end
-    if kc == Keybinds.SpinToggle then
-        Config.SpinBot = not Config.SpinBot
-        applyAllToggles(); saveConfig()
-    end
-    if kc == Keybinds.MedusaToggle then
-        Config.MedusaCounter = not Config.MedusaCounter
-        applyAllToggles(); saveConfig()
-    end
+    if kc == Keybinds.AutoLeft then Config.AutoLeft = not Config.AutoLeft; if Config.AutoLeft then Config.AutoRight = false end; applyAllToggles(); saveConfig() end
+    if kc == Keybinds.AutoRight then Config.AutoRight = not Config.AutoRight; if Config.AutoRight then Config.AutoLeft = false end; applyAllToggles(); saveConfig() end
+    if kc == Keybinds.FullAutoLeft then Config.FullAutoLeft = not Config.FullAutoLeft; if Config.FullAutoLeft then Config.FullAutoRight = false end; applyAllToggles(); saveConfig() end
+    if kc == Keybinds.FullAutoRight then Config.FullAutoRight = not Config.FullAutoRight; if Config.FullAutoRight then Config.FullAutoLeft = false end; applyAllToggles(); saveConfig() end
+    if kc == Keybinds.AutoBat then Config.AutoBat = not Config.AutoBat; applyAllToggles(); saveConfig() end
+    if kc == Keybinds.AutoSteal then Config.AutoSteal = not Config.AutoSteal; applyAllToggles(); saveConfig() end
+    if kc == Keybinds.LaggerToggle then Config.Lagger = not Config.Lagger; applyAllToggles(); saveConfig() end
+    if kc == Keybinds.SpeedBypass then Config.SpeedBypass = not Config.SpeedBypass; applyAllToggles(); saveConfig() end
+    if kc == Keybinds.Float then Config.Float = not Config.Float; applyAllToggles(); saveConfig() end
+    if kc == Keybinds.InfiniteJump then Config.InfiniteJump = not Config.InfiniteJump; applyAllToggles(); saveConfig() end
+    if kc == Keybinds.AntiRagdoll then Config.AntiRagdoll = not Config.AntiRagdoll; applyAllToggles(); saveConfig() end
+    if kc == Keybinds.Unwalk then Config.Unwalk = not Config.Unwalk; applyAllToggles(); saveConfig() end
+    if kc == Keybinds.GalaxyToggle then Config.GalaxyMode = not Config.GalaxyMode; applyAllToggles(); saveConfig() end
+    if kc == Keybinds.SpinToggle then Config.SpinBot = not Config.SpinBot; applyAllToggles(); saveConfig() end
+    if kc == Keybinds.MedusaToggle then Config.MedusaCounter = not Config.MedusaCounter; applyAllToggles(); saveConfig() end
 end)
 
 -- =============================================================
--- 26. INITIALIZATION (LOAD CONFIG, APPLY TOGGLES, SHOW ANIMATION)
+-- INITIALIZATION
 -- =============================================================
 loadConfig()
 applyAllToggles()
 showStartupAnimation()
 updateProgressBarVisibility()
-print("========== S7 SHUB LOADED ==========")
-print("All features are OFF by default.")
-print("Open the GUI (click 'S7S' bar or press U) and enable what you want.")
-print("Floating buttons can be dragged anywhere on screen.")
-print("=====================================")
+print("═══════════════════════════════════════════════════════════")
+print("                     S7 SHUB LOADED                         ")
+print("═══════════════════════════════════════════════════════════")
+print("All features are OFF by default. Use the GUI (press U) or")
+print("click the '－' button to open the menu. Enable anything.")
+print("Floating buttons can be dragged and their positions saved.")
+print("═══════════════════════════════════════════════════════════")
